@@ -2240,12 +2240,9 @@ if __name__ == "__main__":
         print("Error: Please set your DISCORD_TOKEN in the .env file.")
     else:
         keep_alive()
-        while True:
-            try:
-                bot.run(TOKEN)
-            except discord.LoginFailure as e:
-                logger.error(f"Login failed: {e}")
-                time.sleep(30)
-            except Exception as e:
-                logger.error(f"Bot crashed with error: {e}", exc_info=True)
-                time.sleep(10)
+        try:
+            bot.run(TOKEN)
+        except discord.LoginFailure as e:
+            logger.error(f"Login failed: {e}")
+        except Exception as e:
+            logger.error(f"Bot crashed with error: {e}", exc_info=True)
