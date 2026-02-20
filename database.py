@@ -40,9 +40,16 @@ def init_db():
         auto_nick_on_join BOOLEAN DEFAULT 0,
         enforce_suffix BOOLEAN DEFAULT 0,
         remove_suffix_on_role_loss BOOLEAN DEFAULT 0,
-        suffix_format TEXT DEFAULT ' [𝙼𝚂𝚄𝚊𝚗]'
+        suffix_format TEXT DEFAULT ' [𝙼𝚂𝚄𝚊𝚗]',
+        present_channel_id INTEGER
     )''')
     
+    # Ensure new columns exist on older databases
+    c.execute("PRAGMA table_info('guild_configs')")
+    existing_guild_columns = [row[1] for row in c.fetchall()]
+    if 'present_channel_id' not in existing_guild_columns:
+        c.execute("ALTER TABLE guild_configs ADD COLUMN present_channel_id INTEGER")
+
     # Attendance Records Table
     c.execute('''CREATE TABLE IF NOT EXISTS attendance_records (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

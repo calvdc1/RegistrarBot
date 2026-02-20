@@ -479,6 +479,7 @@ def load_attendance_data(guild_id):
         "report_channel_id": config.get('report_channel_id'),
         "last_report_message_id": config.get('last_report_message_id'),
         "last_report_channel_id": config.get('last_report_channel_id'),
+        "present_channel_id": config.get('present_channel_id'),
         "records": records,
         "settings": settings
     }
@@ -496,6 +497,7 @@ def save_attendance_data(guild_id, guild_data):
         "report_channel_id": guild_data.get('report_channel_id'),
         "last_report_message_id": guild_data.get('last_report_message_id'),
         "last_report_channel_id": guild_data.get('last_report_channel_id'),
+        "present_channel_id": guild_data.get('present_channel_id'),
         
         # Settings
         "attendance_mode": settings.get('attendance_mode'),
@@ -995,6 +997,24 @@ async def set_permit_role(ctx, role: discord.Role = None):
     
     # Check setup completion
     await check_and_notify_setup_completion(ctx)
+
+@bot.command(name='channelpresent', aliases=['setpresentchannel'])
+@commands.has_permissions(manage_channels=True)
+async def set_present_channel(ctx, channel: discord.TextChannel = None):
+    """
+    Sets the only channel where users are allowed to say 'present'.
+    Usage: !channelpresent #channel
+    Usage: !channelpresent (to remove the restriction)
+    """
+    data = load_attendance_data(ctx.guild.id)
+    if channel:
+        data['present_channel_id'] = channel.id
+        save_attendance_data(ctx.guild.id, data)
+        await ctx.send(f"Present channel updated: users can only say `present` in {channel.mention}.")
+    else:
+        data['present_channel_id'] = None
+        save_attendance_data(ctx.guild.id, data)
+        await ctx.send("Present channel restriction removed: users can say `present` in any channel.")
 
 @bot.command(name='resetpermitrole', aliases=['resetassignrole', 'resetallowedrole'])
 @commands.has_permissions(manage_roles=True)
@@ -2167,6 +2187,14 @@ async def on_message(message):
             return
 
         data = load_attendance_data(message.guild.id)
+        
+        # Restrict to configured present channel if set
+        present_channel_id = data.get('present_channel_id')
+        if present_channel_id and message.channel.id != present_channel_id:
+            target_channel = message.guild.get_channel(present_channel_id)
+            if target_channel:
+                await message.channel.send(f"You can only mark your attendance in {target_channel.mention}.", delete_after=5)
+            return
         
         # Check permissions
         allowed_role_id = data.get('allowed_role_id')

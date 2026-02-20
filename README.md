@@ -92,6 +92,10 @@ Run these commands in your server to set up the bot. **The bot will notify you w
     ```
     !setpermitrole @Student
     ```
+6.  **Set Present Channel** (Where they can say `present`?):
+    ```
+    !channelpresent #attendance-channel
+    ```
 
 🎉 **Once all steps are done, the bot will send a "Setup Complete" confirmation!**
 
@@ -129,6 +133,7 @@ After setup, use:
 | `!assignchannel remove` | Disable automatic attendance reporting. |
 | `!setpermitrole @Role` | Set which role is allowed to use `!present`. |
 | `!resetpermitrole` | Remove the permission restriction. |
+| `!channelpresent #channel` | Restrict `present` messages to a single channel. |
 | `!presentrole @Role` | Set the role given for Present status. |
 | `!absentrole @Role` | Set the role given for Absent status. |
 | `!excuserole @Role` | Set the role given for Excused status. |
