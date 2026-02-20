@@ -31,7 +31,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 - **Leaderboard Command**: `!leaderboard` / `!attendance_leaderboard` shows:
   - A gold embed with server branding.
   - A table: `Rank | Member | Present / Absent / Excused`.
-- **Daily Reset**: `!resetattendance` clears daily records and leaderboard stats while keeping your config.
+- **Daily Reset**: `!resetattendance` clears daily records **and resets all leaderboard counts back to 0** while keeping your config.
 
 ### 📌 Sticky Messages
 - **Channel Stickies**: Use `!stick <text>` to keep one sticky message at the bottom of a channel.
