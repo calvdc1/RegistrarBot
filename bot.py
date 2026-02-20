@@ -14,6 +14,8 @@ import database # Import database module
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+if TOKEN:
+    TOKEN = TOKEN.strip().strip('`').strip('"').strip("'")
 # DATA_DIR = "data" # No longer needed for main storage
 
 # Configure logging
@@ -33,6 +35,7 @@ intents.members = True  # Required to detect member joins and updates
 intents.message_content = True # Required for reading commands
 
 bot = commands.Bot(command_prefix='!', intents=intents, case_insensitive=True)
+sticky_channels = {}
 
 # Configuration
 SUFFIX = " [𝙼𝚂𝚄𝚊𝚗]"
@@ -908,6 +911,8 @@ async def update_user_status(ctx, member, status, reason=None):
         
     data['records'][user_id] = record
     save_attendance_data(ctx.guild.id, data)
+    if status in ('present', 'absent', 'excused'):
+        database.increment_status_count(ctx.guild.id, member.id, status)
     
     # Philippines Time (UTC+8) for DMs
     ph_tz = datetime.timezone(datetime.timedelta(hours=8))
@@ -921,7 +926,7 @@ async def update_user_status(ctx, member, status, reason=None):
             dm_embed = discord.Embed(
                 title="Attendance Status: Excused",
                 description=f"You have been marked as **EXCUSED** in **{ctx.guild.name}**.",
-                color=discord.Color.orange(),
+                color=discord.Color.from_rgb(255, 255, 255),
                 timestamp=now_ph
             )
             if reason:
@@ -1249,7 +1254,7 @@ def create_attendance_embed(guild):
     embed.add_field(name=f"❌  **Absent**  ` {len(absent_entries)} `", value=format_list(absent_entries), inline=True)
     embed.add_field(name=f"⚠️  **Excused**  ` {len(excused_entries)} `", value=format_list(excused_entries), inline=False)
     
-    embed.set_footer(text=f"Created by Calvin • Last Updated: {now_ph.strftime('%I:%M %p')}", icon_url=guild.icon.url if guild.icon else None)
+    embed.set_footer(text=f"Calvsbot • Last Updated: {now_ph.strftime('%I:%M %p')}", icon_url=guild.icon.url if guild.icon else None)
     
     return embed
 
@@ -1339,16 +1344,17 @@ async def restart_attendance(ctx):
     }
 
     fresh_data = {
-        "attendance_role_id": None,
-        "absent_role_id": None,
-        "excused_role_id": None,
-        "welcome_channel_id": None,
-        "report_channel_id": None,
+        "attendance_role_id": data.get('attendance_role_id'),
+        "absent_role_id": data.get('absent_role_id'),
+        "excused_role_id": data.get('excused_role_id'),
+        "welcome_channel_id": data.get('welcome_channel_id'),
+        "report_channel_id": data.get('report_channel_id'),
         "records": {},
         "settings": default_settings
     }
     
     save_attendance_data(ctx.guild.id, fresh_data)
+    database.clear_attendance_stats(ctx.guild.id)
     
     # Attempt to post a fresh, empty report to the report channel
     report_channel_id = data.get('report_channel_id')
@@ -1450,14 +1456,83 @@ async def refresh_attendance_report(guild, target_channel=None, force_update=Fal
             
     try:
         new_msg = await channel.send(embed=embed)
-        
-        # Update Tracking
         data['last_report_message_id'] = new_msg.id
         data['last_report_channel_id'] = channel.id
         save_attendance_data(guild.id, data)
         return new_msg
     except discord.Forbidden:
         return None
+
+@bot.command(name='attendance_leaderboard', aliases=['presentleaderboard', 'leaderboard'])
+async def attendance_leaderboard(ctx, limit: int = 10):
+    if limit < 1:
+        limit = 1
+    if limit > 25:
+        limit = 25
+    rows = database.get_attendance_leaderboard(ctx.guild.id, limit)
+    if not rows:
+        await ctx.send("No attendance data yet.")
+        return
+    embed = discord.Embed(
+        title="Attendance Leaderboard",
+        description=None,
+        color=discord.Color.gold()
+    )
+    if ctx.guild.icon:
+        embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
+    else:
+        embed.set_author(name=ctx.guild.name)
+    header = "**Rank | Member | Present / Absent / Excused**"
+    lines = [header]
+    rank = 1
+    for row in rows:
+        member = ctx.guild.get_member(row["user_id"])
+        if not member:
+            continue
+        present = row["present_count"] or 0
+        absent = row["absent_count"] or 0
+        excused = row["excused_count"] or 0
+        lines.append(f"{rank}. {member.mention} — {present} / {absent} / {excused}")
+        rank += 1
+    if not lines:
+        await ctx.send("No attendance data yet.")
+        return
+    embed.add_field(name="Leaders", value="\n".join(lines), inline=False)
+    embed.set_footer(text=f"Calvsbot • Server: {ctx.guild.name}", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+    await ctx.send(embed=embed)
+
+@bot.command(name='stick')
+@commands.has_permissions(manage_messages=True)
+async def stick_message(ctx, *, message_text: str):
+    msg = await ctx.send(message_text)
+    sticky_channels[ctx.channel.id] = {
+        "message_id": msg.id,
+        "content": message_text
+    }
+
+@bot.command(name='removestick')
+@commands.has_permissions(manage_messages=True)
+async def removestick_message(ctx):
+    sticky_channels.pop(ctx.channel.id, None)
+    if ctx.message.reference and ctx.message.reference.resolved:
+        target = ctx.message.reference.resolved
+        try:
+            if target.pinned:
+                await target.unpin()
+                return
+        except discord.Forbidden:
+            await ctx.send("I cannot unpin that message. Please check my permissions.", delete_after=5)
+            return
+    pins = await ctx.channel.pins()
+    if not pins:
+        await ctx.send("There are no pinned messages in this channel.", delete_after=5)
+        return
+    target = pins[0]
+    try:
+        await target.unpin()
+    except discord.Forbidden:
+        await ctx.send("I cannot unpin messages here. Please check my permissions.", delete_after=5)
 
 @bot.command(name='attendance')
 async def view_attendance(ctx):
@@ -1566,6 +1641,7 @@ async def check_attendance_expiry():
                                         "timestamp": now.isoformat(),
                                         "reason": "Auto-marked at end of attendance window"
                                     }
+                                    database.increment_status_count(guild.id, member.id, "absent")
                                     
                                     # Give absent role
                                     if absent_role:
@@ -1730,15 +1806,15 @@ async def check_attendance_expiry():
                             "timestamp": now.isoformat(), 
                             "channel_id": channel_id
                         }
+                        database.increment_status_count(guild.id, user_id, "absent")
 
                         # Notify
                         if channel:
-                            msg_content = f"{member.mention}, your attendance session has expired."
+                            msg_content = f"{member.mention}, your attendance session has expired. You have been marked as Absent. You are now allowed to say present again."
                             if ping_role_id:
                                 ping_role = guild.get_role(ping_role_id)
                                 if ping_role:
                                     msg_content = f"{ping_role.mention} " + msg_content
-                            msg_content += f"\nYou have been marked as **Absent**. You are now allowed to say **present** again."
                             await channel.send(msg_content)
 
                     else:
@@ -1919,30 +1995,32 @@ class AttendanceView(discord.ui.View):
             
         data['records'][user_id] = record
         save_attendance_data(interaction.guild.id, data)
+        if status in ('present', 'absent', 'excused'):
+            database.increment_status_count(interaction.guild.id, member.id, status)
 
         # Update Report
-        await refresh_attendance_report(interaction.guild)
+        await refresh_attendance_report(interaction.guild, interaction.channel, force_update=True)
 
         # Send DM if present
         if status == 'present':
-             try:
-                 embed = discord.Embed(
+            try:
+                embed = discord.Embed(
                     title="✅ Attendance Confirmed",
                     description="Your attendance has been checked successfully.",
-                    color=discord.Color.green()
-                 )
-                 if interaction.guild.icon:
-                     embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
-                     embed.set_thumbnail(url=interaction.guild.icon.url)
-                 else:
-                     embed.set_author(name=interaction.guild.name)
+                    color=discord.Color.gold()
+                )
+                if interaction.guild.icon:
+                    embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
+                    embed.set_thumbnail(url=interaction.guild.icon.url)
+                else:
+                    embed.set_author(name=interaction.guild.name)
 
-                 embed.add_field(name="Status", value="Present", inline=True)
-                 embed.add_field(name="Note", value="You will be notified once the 12-hour period has expired, after which you will be allowed to mark yourself as present again.", inline=False)
-                 embed.set_footer(text=f"Created by Calvin • Server: {interaction.guild.name}")
-                 await member.send(embed=embed)
-             except:
-                 pass
+                embed.add_field(name="Status", value="Present", inline=True)
+                embed.add_field(name="Note", value="You will be notified once the 12-hour period has expired, after which you will be allowed to mark yourself as present again.", inline=False)
+                embed.set_footer(text=f"Calvsbot • Server: {interaction.guild.name}")
+                await member.send(embed=embed)
+            except:
+                pass
 
 @bot.command(name='assignchannel')
 @commands.has_permissions(administrator=True)
@@ -2066,12 +2144,10 @@ async def on_message(message):
     if message.content.startswith('!'):
         logger.info(f"Command-like message received from {message.author}: {message.content}")
 
-    # Process commands first (important!)
     await bot.process_commands(message)
 
     msg_content = message.content.strip().lower()
 
-    # Attendance check logic
     if msg_content == "present":
         if not message.guild:
             return
@@ -2139,6 +2215,7 @@ async def on_message(message):
                             "channel_id": message.channel.id
                         }
                         save_attendance_data(message.guild.id, data)
+                        database.increment_status_count(message.guild.id, message.author.id, "present")
                         
                         await message.channel.send(f"Attendance marked for {message.author.mention}! You have been given the {role.name} role.", delete_after=10)
                         
@@ -2147,7 +2224,7 @@ async def on_message(message):
                             embed = discord.Embed(
                                 title="✅ Attendance Confirmed",
                                 description="Your attendance has been checked successfully.",
-                                color=discord.Color.green()
+                                color=discord.Color.gold()
                             )
                             if message.guild.icon:
                                 embed.set_author(name=message.guild.name, icon_url=message.guild.icon.url)
@@ -2157,18 +2234,19 @@ async def on_message(message):
 
                             embed.add_field(name="Status", value="Present", inline=True)
                             embed.add_field(name="Note", value="You will be notified once the 12-hour period has expired, after which you will be allowed to mark yourself as present again.", inline=False)
-                            embed.set_footer(text=f"Created by Calvin • Server: {message.guild.name}")
+                            embed.set_footer(text=f"Calvsbot • Server: {message.guild.name}")
                             await message.author.send(embed=embed)
                         except discord.Forbidden:
                             logger.warning(f"Could not DM user {message.author.name} (Closed DMs)")
                         except Exception:
                             pass
 
-                        # Automatically show the attendance report
-                        await refresh_attendance_report(message.guild, force_update=True)
+                        await refresh_attendance_report(message.guild, message.channel, force_update=True)
                     except discord.Forbidden:
                         await message.channel.send("I tried to give you the role, but I don't have permission! Please check my role hierarchy.")
-
+    elif msg_content == "presents":
+        if message.guild:
+            await refresh_attendance_report(message.guild, message.channel, force_update=True)
     elif msg_content.startswith("excuse"):
         if not message.guild:
             return
@@ -2234,9 +2312,28 @@ async def on_message(message):
                     except discord.Forbidden:
                         await message.channel.send("I tried to give you the role, but I don't have permission! Please check my role hierarchy.")
 
+    if message.guild and not message.content.startswith('!'):
+        sticky_info = sticky_channels.get(message.channel.id)
+        if sticky_info:
+            try:
+                await message.delete()
+            except discord.Forbidden:
+                pass
+            except discord.HTTPException:
+                pass
+            channel = message.channel
+            sticky_msg = None
+            try:
+                sticky_msg = await channel.fetch_message(sticky_info["message_id"])
+            except (discord.NotFound, discord.Forbidden):
+                sticky_msg = None
+            if not sticky_msg:
+                new_msg = await channel.send(sticky_info["content"])
+                sticky_info["message_id"] = new_msg.id
+
 
 if __name__ == "__main__":
-    if not TOKEN or TOKEN == "your_token_here":
+    if not TOKEN:
         print("Error: Please set your DISCORD_TOKEN in the .env file.")
     else:
         keep_alive()

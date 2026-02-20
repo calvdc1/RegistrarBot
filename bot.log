@@ -640,3 +640,323 @@
 2026-02-09 02:18:40,704 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
 2026-02-09 02:18:40,750 [INFO] Attendance reset complete for TEST BOT
 2026-02-09 02:18:48,325 [INFO] Command-like message received from calv.xmv: !settings
+2026-02-21 02:18:15,554 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:18:15,607 [INFO] logging in using static token
+2026-02-21 02:18:15,800 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:18:15,801 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:18:17,478 [INFO] Shard ID None has connected to Gateway (Session ID: df5dc7c4bdf5294acb652efa23948c8e).
+2026-02-21 02:18:19,553 [INFO] Logged in as Registrarbot
+2026-02-21 02:18:19,553 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:18:19,715 [INFO] Database initialized.
+2026-02-21 02:18:19,723 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:18:20,582 [INFO] Command-like message received from calv.xmv: !stick Please read the rules before chatting.!
+2026-02-21 02:18:21,278 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:18:21,374 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:18:21,375 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:18:21,643 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:18:38,923 [INFO] Command-like message received from calv.xmv: !removestick
+2026-02-21 02:18:49,556 [INFO] Command-like message received from calv.xmv: !stick Please read the rules before chatting.
+2026-02-21 02:19:19,806 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:19:19,811 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:20:19,841 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:20:19,859 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:20:47,575 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:20:47,625 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:21:09,472 [INFO] Command-like message received from calv.xmv: !present
+2026-02-21 02:21:19,735 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:21:19,740 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:21:28,950 [INFO] Command-like message received from calv.xmv: !stick test
+2026-02-21 02:22:19,733 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:22:19,735 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:23:03,122 [INFO] Command-like message received from calv.xmv: !giveoffense <@836128654983168002>  test
+2026-02-21 02:23:15,785 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:23:15,797 [INFO] logging in using static token
+2026-02-21 02:23:15,938 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:23:15,939 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:23:19,648 [INFO] Shard ID None has connected to Gateway (Session ID: a11e96e35fbfb8a90134394afe1e958b).
+2026-02-21 02:23:21,727 [INFO] Logged in as Registrarbot
+2026-02-21 02:23:21,728 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:23:21,779 [INFO] Database initialized.
+2026-02-21 02:23:21,799 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:23:21,802 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:23:21,810 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:23:21,810 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:23:21,968 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:24:21,847 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:24:21,856 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:25:21,829 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:25:21,840 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:26:21,812 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:26:21,822 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:27:21,798 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:27:21,812 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:28:30,231 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:28:30,249 [INFO] logging in using static token
+2026-02-21 02:28:30,360 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:28:30,361 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:28:32,277 [INFO] Shard ID None has connected to Gateway (Session ID: 0c30baa2e6e7960148ec01e1660e769d).
+2026-02-21 02:28:34,345 [INFO] Logged in as Registrarbot
+2026-02-21 02:28:34,346 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:28:34,400 [INFO] Database initialized.
+2026-02-21 02:28:34,434 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:28:34,437 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:28:34,449 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:28:34,449 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:28:34,669 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:29:34,433 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:29:34,436 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:30:29,606 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:30:29,699 [ERROR] Command error in attendance_leaderboard: Command raised an exception: OperationalError: no such column: absent_count
+NoneType: None
+2026-02-21 02:30:34,414 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:30:34,417 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:30:56,782 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:30:56,800 [INFO] logging in using static token
+2026-02-21 02:30:56,876 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:30:56,877 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:30:58,776 [INFO] Shard ID None has connected to Gateway (Session ID: 3883794cd0467ec7c67a4d9eaab6b9fd).
+2026-02-21 02:31:00,836 [INFO] Logged in as Registrarbot
+2026-02-21 02:31:00,836 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:31:00,853 [INFO] Database initialized.
+2026-02-21 02:31:00,856 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:31:00,858 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:31:00,868 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:31:00,868 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:31:01,057 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:31:23,148 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:31:23,165 [ERROR] Command error in attendance_leaderboard: Command raised an exception: OperationalError: no such column: absent_count
+NoneType: None
+2026-02-21 02:31:47,867 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:31:47,871 [ERROR] Command error in attendance_leaderboard: Command raised an exception: OperationalError: no such column: absent_count
+NoneType: None
+2026-02-21 02:32:00,859 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:32:00,861 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:32:25,917 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:32:25,932 [INFO] logging in using static token
+2026-02-21 02:32:26,042 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:32:26,043 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:32:27,886 [INFO] Shard ID None has connected to Gateway (Session ID: cad7e50bf846a7158ba8286da1950079).
+2026-02-21 02:32:29,964 [INFO] Logged in as Registrarbot
+2026-02-21 02:32:29,964 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:32:30,186 [INFO] Database initialized.
+2026-02-21 02:32:30,205 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:32:30,206 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:32:30,213 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:32:30,213 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:32:30,533 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:33:30,237 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:33:30,244 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:33:38,409 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:34:30,576 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:34:30,650 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:35:16,351 [INFO] Command-like message received from calv.xmv: ! leaderboard
+2026-02-21 02:35:24,806 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:35:30,208 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:35:30,211 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:36:01,990 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:36:30,223 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:36:30,229 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:36:33,700 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:36:57,818 [INFO] Command-like message received from calv.xmv: !attendance_leaderboard
+2026-02-21 02:37:16,693 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:37:23,306 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:37:23,321 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:37:29,760 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:37:29,762 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:37:30,193 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:37:30,195 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:38:30,206 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:38:30,208 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:39:19,056 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:39:19,087 [INFO] Generating report for guild: CSU | CARAGA STATE (1465046611842306384)
+2026-02-21 02:39:38,661 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:39:38,673 [INFO] logging in using static token
+2026-02-21 02:39:38,759 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:39:38,759 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:39:40,589 [INFO] Shard ID None has connected to Gateway (Session ID: 2def9cecc18fc478df8b57d786e7b75c).
+2026-02-21 02:39:42,659 [INFO] Logged in as Registrarbot
+2026-02-21 02:39:42,659 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:39:42,716 [INFO] Database initialized.
+2026-02-21 02:39:42,738 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:39:42,739 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:39:42,747 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:39:42,749 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:39:42,926 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:39:44,210 [INFO] Command-like message received from calv.xmv: !stick test
+2026-02-21 02:40:42,798 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:40:42,817 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:41:03,952 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:41:18,361 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:41:42,746 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:41:42,749 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:42:25,442 [INFO] Command-like message received from calv.xmv: !stick test
+2026-02-21 02:42:42,726 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:42:42,728 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:43:11,722 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 02:43:11,739 [INFO] logging in using static token
+2026-02-21 02:43:11,835 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 02:43:11,836 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 02:43:13,480 [INFO] Shard ID None has connected to Gateway (Session ID: c1cc3e1184af5ffbdf63383fa413a73d).
+2026-02-21 02:43:15,547 [INFO] Logged in as Registrarbot
+2026-02-21 02:43:15,547 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 02:43:15,565 [INFO] Database initialized.
+2026-02-21 02:43:15,570 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:43:15,573 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:43:15,584 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 02:43:15,584 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 02:43:15,823 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 02:43:35,307 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:44:15,596 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:44:15,600 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:44:26,735 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:44:26,816 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:45:15,573 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:45:15,575 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:45:22,338 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:45:38,870 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:46:15,606 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:46:15,610 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:47:15,586 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:47:15,589 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:48:10,359 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:48:10,372 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:48:15,583 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:48:15,586 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:49:15,574 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:49:15,577 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:50:15,583 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:50:15,589 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:51:15,586 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:51:15,593 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:52:15,638 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:52:15,641 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:52:53,101 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:52:53,129 [INFO] Generating report for guild: CSU | CARAGA STATE (1465046611842306384)
+2026-02-21 02:53:05,434 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:53:15,576 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:53:15,578 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:53:16,593 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:53:16,596 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:53:23,995 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:54:11,329 [INFO] Command-like message received from calv.xmv: !stick test
+2026-02-21 02:54:15,575 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:54:15,878 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:55:15,580 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:55:15,582 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:56:15,635 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:56:15,644 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:57:15,583 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:57:15,587 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:57:20,539 [INFO] Command-like message received from calv.xmv: !removepresent <@836128654983168002>
+2026-02-21 02:58:15,578 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:58:15,580 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:58:15,806 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 02:58:15,809 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 02:58:27,187 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 02:59:15,620 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 02:59:15,626 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:00:15,590 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:00:15,596 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:01:15,708 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:01:15,742 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:02:15,590 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:02:15,595 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:03:15,577 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:03:15,579 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:03:41,310 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 03:03:41,329 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 03:03:52,697 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 03:04:15,581 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:04:15,582 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:05:15,575 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:05:15,578 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:06:15,584 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:06:15,591 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:07:15,661 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:07:15,687 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:07:30,061 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 03:08:15,588 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:08:15,591 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:08:59,153 [INFO] Command-like message received from calv.xmv: !assignchannel <#1435305016750772415>
+2026-02-21 03:08:59,813 [INFO] Report channel set to 🔒・config (1435305016750772415) for guild 1434956894262399108
+2026-02-21 03:09:10,368 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 03:09:10,375 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 03:09:15,579 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:09:15,580 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:10:15,576 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:10:15,579 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:11:15,588 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:11:15,590 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:12:15,586 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:12:15,589 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:13:05,258 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 03:13:05,360 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 03:13:15,570 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:13:15,572 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:13:38,196 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 03:14:13,744 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 03:14:13,749 [INFO] Generating report for guild: CSU | CARAGA STATE (1465046611842306384)
+2026-02-21 03:14:15,585 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:14:15,586 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:14:23,609 [INFO] Command-like message received from calv.xmv: !leadeboard
+2026-02-21 03:14:39,390 [INFO] Command-like message received from calv.xmv: !stick
+2026-02-21 03:15:11,438 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 03:15:15,584 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:15:15,587 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:16:15,661 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:16:15,676 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:17:03,889 [INFO] Command-like message received from calv.xmv: !resetattendance
+2026-02-21 03:17:15,585 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:17:15,591 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:17:18,438 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 03:18:15,584 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:18:15,588 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:19:10,171 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-02-21 03:19:10,203 [INFO] logging in using static token
+2026-02-21 03:19:10,416 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.10:8080
+2026-02-21 03:19:10,419 [INFO] [33mPress CTRL+C to quit[0m
+2026-02-21 03:19:12,255 [INFO] Shard ID None has connected to Gateway (Session ID: d800b0b475af4c267e1e5f5cf86a128b).
+2026-02-21 03:19:14,333 [INFO] Logged in as Registrarbot
+2026-02-21 03:19:14,333 [INFO] Bot is ready to auto-nickname users!
+2026-02-21 03:19:14,382 [INFO] Database initialized.
+2026-02-21 03:19:14,402 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:19:14,405 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:19:14,416 [INFO] Triggering End-of-Day for TEST BOT (Date: 2026-02-20)
+2026-02-21 03:19:14,425 [WARNING] Cannot auto-mark absences for TEST BOT: No 'allowed_role' configured.
+2026-02-21 03:19:15,009 [INFO] Attendance reset complete for TEST BOT
+2026-02-21 03:19:29,930 [INFO] Command-like message received from calv.xmv: !attendance
+2026-02-21 03:19:29,932 [INFO] Generating report for guild: ONEMSU (1434956894262399108)
+2026-02-21 03:19:56,466 [INFO] Command-like message received from calv.xmv: !stick try
+2026-02-21 03:20:12,400 [INFO] Command-like message received from calv.xmv: !leaderboard
+2026-02-21 03:20:14,411 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:20:14,415 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:21:14,435 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:21:14,438 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:22:14,446 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:22:14,455 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:23:14,399 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
+2026-02-21 03:23:14,405 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value

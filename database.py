@@ -59,6 +59,24 @@ def init_db():
     c.execute('CREATE INDEX IF NOT EXISTS idx_records_guild_user ON attendance_records (guild_id, user_id)')
     c.execute('CREATE INDEX IF NOT EXISTS idx_records_guild_date ON attendance_records (guild_id, timestamp)')
 
+    c.execute('''CREATE TABLE IF NOT EXISTS attendance_stats (
+        guild_id INTEGER,
+        user_id INTEGER,
+        present_count INTEGER DEFAULT 0,
+        absent_count INTEGER DEFAULT 0,
+        excused_count INTEGER DEFAULT 0,
+        PRIMARY KEY (guild_id, user_id)
+    )''')
+
+    c.execute("PRAGMA table_info('attendance_stats')")
+    existing_columns = [row[1] for row in c.fetchall()]
+    if 'present_count' not in existing_columns:
+        c.execute("ALTER TABLE attendance_stats ADD COLUMN present_count INTEGER DEFAULT 0")
+    if 'absent_count' not in existing_columns:
+        c.execute("ALTER TABLE attendance_stats ADD COLUMN absent_count INTEGER DEFAULT 0")
+    if 'excused_count' not in existing_columns:
+        c.execute("ALTER TABLE attendance_stats ADD COLUMN excused_count INTEGER DEFAULT 0")
+
     conn.commit()
     conn.close()
     logger.info("Database initialized.")
@@ -194,3 +212,53 @@ def clear_attendance_records(guild_id):
     c.execute('DELETE FROM attendance_records WHERE guild_id = ?', (guild_id,))
     conn.commit()
     conn.close()
+
+def clear_attendance_stats(guild_id):
+    """Clears all attendance stats (present/absent/excused counts) for a guild."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('DELETE FROM attendance_stats WHERE guild_id = ?', (guild_id,))
+    conn.commit()
+    conn.close()
+
+def increment_status_count(guild_id, user_id, status, count=1):
+    conn = get_connection()
+    c = conn.cursor()
+    present = 0
+    absent = 0
+    excused = 0
+    if status == 'present':
+        present = count
+        column = 'present_count'
+    elif status == 'absent':
+        absent = count
+        column = 'absent_count'
+    elif status == 'excused':
+        excused = count
+        column = 'excused_count'
+    else:
+        conn.close()
+        return
+    c.execute(
+        f'''INSERT INTO attendance_stats (guild_id, user_id, present_count, absent_count, excused_count)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(guild_id, user_id) DO UPDATE SET {column} = {column} + ?''',
+        (guild_id, user_id, present, absent, excused, count)
+    )
+    conn.commit()
+    conn.close()
+
+def get_attendance_leaderboard(guild_id, limit=10):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(
+        '''SELECT user_id, present_count, absent_count, excused_count
+           FROM attendance_stats
+           WHERE guild_id = ?
+           ORDER BY present_count DESC, user_id ASC
+           LIMIT ?''',
+        (guild_id, limit)
+    )
+    rows = c.fetchall()
+    conn.close()
+    return rows
