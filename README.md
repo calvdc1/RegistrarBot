@@ -36,6 +36,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 ### 📌 Sticky Messages
 - **Channel Stickies**: Use `!stick <text>` to keep one sticky message at the bottom of a channel.
 - **Non-Duplicating**: The sticky message is only recreated if it is deleted.
+- **Smart Cleanup**: In sticky channels, plain-text messages are auto-deleted, but messages with images/photos are kept.
 - **Remove Sticky**: Use `!removestick` to disable the sticky for a channel.
 
 ### 📝 Auto-Nickname

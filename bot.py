@@ -2315,6 +2315,18 @@ async def on_message(message):
     if message.guild and not message.content.startswith('!'):
         sticky_info = sticky_channels.get(message.channel.id)
         if sticky_info:
+            has_image_attachment = False
+            if message.attachments:
+                for att in message.attachments:
+                    if att.content_type and att.content_type.startswith("image/"):
+                        has_image_attachment = True
+                        break
+                    filename = att.filename.lower()
+                    if filename.endswith((".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp")):
+                        has_image_attachment = True
+                        break
+            if has_image_attachment:
+                return
             try:
                 await message.delete()
             except discord.Forbidden:
