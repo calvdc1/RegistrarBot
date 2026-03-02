@@ -1484,42 +1484,82 @@ async def refresh_attendance_report(guild, target_channel=None, force_update=Fal
         return None
 
 @bot.command(name='attendance_leaderboard', aliases=['presentleaderboard', 'leaderboard'])
-async def attendance_leaderboard(ctx, limit: int = 10):
-    if limit < 1:
-        limit = 1
-    if limit > 25:
-        limit = 25
-    rows = database.get_attendance_leaderboard(ctx.guild.id, limit)
+async def attendance_leaderboard(ctx, page: int = 1):
+    per_page = 10
+    max_pages = 200
+
+    total_rows = database.get_attendance_leaderboard_count(ctx.guild.id)
+    if total_rows == 0:
+        await ctx.send("No attendance data yet.")
+        return
+
+    calculated_pages = (total_rows + per_page - 1) // per_page
+    total_pages = max(1, min(max_pages, calculated_pages))
+    if page < 1:
+        page = 1
+    if page > total_pages:
+        page = total_pages
+
+    offset = (page - 1) * per_page
+    rows = database.get_attendance_leaderboard(ctx.guild.id, per_page, offset)
     if not rows:
         await ctx.send("No attendance data yet.")
         return
+
+    start_rank = offset + 1
+    end_rank = offset + len(rows)
+
     embed = discord.Embed(
-        title="Attendance Leaderboard",
-        description=None,
-        color=discord.Color.gold()
+        title="🏆 Attendance Leaderboard",
+        description=(
+            f"✨ **Top performers in {ctx.guild.name}**\n"
+            f"Showing ranks **{start_rank}–{end_rank}** (10 per page)."
+        ),
+        color=discord.Color.blurple()
     )
+    embed.timestamp = discord.utils.utcnow()
+
     if ctx.guild.icon:
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
         embed.set_thumbnail(url=ctx.guild.icon.url)
     else:
         embed.set_author(name=ctx.guild.name)
-    header = "**Rank | Member | Present / Absent / Excused**"
-    lines = [header]
-    rank = 1
+
+    lines = []
+    rank = start_rank
     for row in rows:
         member = ctx.guild.get_member(row["user_id"])
-        if not member:
-            continue
+        member_text = member.mention if member else f"<@{row['user_id']}>"
         present = row["present_count"] or 0
         absent = row["absent_count"] or 0
         excused = row["excused_count"] or 0
-        lines.append(f"{rank}. {member.mention} — {present} / {absent} / {excused}")
+
+        if rank == 1:
+            prefix = "🥇"
+        elif rank == 2:
+            prefix = "🥈"
+        elif rank == 3:
+            prefix = "🥉"
+        else:
+            prefix = "🔹"
+
+        lines.append(
+            f"{prefix} **#{rank}** {member_text}\n"
+            f"↳ ✅ Present: **{present}** • ❌ Absent: **{absent}** • 🟡 Excused: **{excused}**"
+        )
         rank += 1
-    if not lines:
-        await ctx.send("No attendance data yet.")
-        return
-    embed.add_field(name="Leaders", value="\n".join(lines), inline=False)
-    embed.set_footer(text=f"Calvsbot • Server: {ctx.guild.name}", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+
+    embed.add_field(name="📊 Rankings", value="\n\n".join(lines), inline=False)
+    embed.add_field(
+        name="📄 Navigation",
+        value="Use `!leaderboard <page>` to view more.\nPages available: **1–200** (or less if no more records).",
+        inline=False
+    )
+    embed.set_footer(
+        text=f"Calvsbot • Page {page}/{total_pages}",
+        icon_url=ctx.guild.icon.url if ctx.guild.icon else None
+    )
+
     await ctx.send(embed=embed)
 
 @bot.command(name='stick')
