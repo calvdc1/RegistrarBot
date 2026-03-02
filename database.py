@@ -255,7 +255,16 @@ def increment_status_count(guild_id, user_id, status, count=1):
     conn.commit()
     conn.close()
 
-def get_attendance_leaderboard(guild_id, limit=10):
+def get_attendance_leaderboard_count(guild_id):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute('SELECT COUNT(*) AS total FROM attendance_stats WHERE guild_id = ?', (guild_id,))
+    row = c.fetchone()
+    conn.close()
+    return row['total'] if row else 0
+
+
+def get_attendance_leaderboard(guild_id, limit=10, offset=0):
     conn = get_connection()
     c = conn.cursor()
     c.execute(
@@ -263,8 +272,8 @@ def get_attendance_leaderboard(guild_id, limit=10):
            FROM attendance_stats
            WHERE guild_id = ?
            ORDER BY present_count DESC, user_id ASC
-           LIMIT ?''',
-        (guild_id, limit)
+           LIMIT ? OFFSET ?''',
+        (guild_id, limit, offset)
     )
     rows = c.fetchall()
     conn.close()
