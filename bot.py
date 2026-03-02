@@ -1510,10 +1510,10 @@ async def attendance_leaderboard(ctx, page: int = 1):
     end_rank = offset + len(rows)
 
     embed = discord.Embed(
-        title="🏆 Attendance Leaderboard",
+        title="Attendance Leaderboard",
         description=(
-            f"✨ **Top performers in {ctx.guild.name}**\n"
-            f"Showing ranks **{start_rank}–{end_rank}** (10 per page)."
+            f"{ctx.guild.name}\n"
+            f"Ranks {start_rank}–{end_rank}"
         ),
         color=discord.Color.blurple()
     )
@@ -1534,25 +1534,15 @@ async def attendance_leaderboard(ctx, page: int = 1):
         absent = row["absent_count"] or 0
         excused = row["excused_count"] or 0
 
-        if rank == 1:
-            prefix = "🥇"
-        elif rank == 2:
-            prefix = "🥈"
-        elif rank == 3:
-            prefix = "🥉"
-        else:
-            prefix = "🔹"
-
         lines.append(
-            f"{prefix} **#{rank}** {member_text}\n"
-            f"↳ ✅ Present: **{present}** • ❌ Absent: **{absent}** • 🟡 Excused: **{excused}**"
+            f"#{rank} {member_text} — P:{present} A:{absent} E:{excused}"
         )
         rank += 1
 
-    embed.add_field(name="📊 Rankings", value="\n\n".join(lines), inline=False)
+    embed.add_field(name="Rankings", value="\n".join(lines), inline=False)
     embed.add_field(
-        name="📄 Navigation",
-        value="Use `!leaderboard <page>` to view more.\nPages available: **1–200** (or less if no more records).",
+        name="Navigation",
+        value=f"Use `!leaderboard <page>` • Pages 1–{total_pages}",
         inline=False
     )
     embed.set_footer(
