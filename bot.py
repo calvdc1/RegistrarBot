@@ -436,6 +436,12 @@ async def set_attendance_time(ctx, *, time_input: str = None):
 
 _settings_cache = {}
 
+def has_conflicting_attendance_status(records, user_id, target_status):
+    """Return True when user already has present/excused status and tries to switch."""
+    record = (records or {}).get(str(user_id), {})
+    current_status = record.get('status')
+    return current_status in ('present', 'excused') and current_status != target_status
+
 def load_attendance_data(guild_id):
     """Loads attendance data for a specific guild from the database."""
     config = database.get_guild_config(guild_id)
@@ -1318,7 +1324,7 @@ async def restart_attendance(ctx):
     Removes roles from present users, clears all records, and resets configuration.
     Usage: !restartattendance
     """
-    embed = discord.Embed(title="⚠️ Confirm Full Reset", description="Are you sure you want to restart everything?\n\nThis will:\n1. Remove 'Present' role from all users.\n2. Delete ALL attendance records.\n3. Reset configuration (Time Window, Roles, Channels) to default.\n\nType `confirm` to proceed.", color=discord.Color.red())
+    embed = discord.Embed(title="⚠️ Confirm Full Reset", description="Are you sure you want to restart everything?\n\nThis will:\n1. Remove attendance roles from users.\n2. Delete ALL attendance records.\n3. Delete ALL leaderboard stats data.\n4. Reset configuration (Time Window, Roles, Channels) to default.\n\nType `confirm` to proceed.", color=discord.Color.red())
     await ctx.send(embed=embed)
 
     def check(m):
@@ -1379,6 +1385,7 @@ async def restart_attendance(ctx):
     }
     
     save_attendance_data(ctx.guild.id, fresh_data)
+    database.clear_attendance_records(ctx.guild.id)
     database.clear_attendance_stats(ctx.guild.id)
     
     # Attempt to post a fresh, empty report to the report channel
@@ -1992,6 +1999,14 @@ class AttendanceView(discord.ui.View):
 
         # Check permitted role
         data = load_attendance_data(interaction.guild.id)
+
+        if status in ('present', 'excused') and has_conflicting_attendance_status(data.get('records'), user.id, status):
+            await interaction.response.send_message(
+                "You already submitted your attendance status for this session. Reset attendance before changing it.",
+                ephemeral=True
+            )
+            return
+
         allowed_role_id = data.get('allowed_role_id')
         if allowed_role_id:
             allowed_role = interaction.guild.get_role(allowed_role_id)
@@ -2259,6 +2274,13 @@ async def on_message(message):
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
 
+        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'present'):
+            await message.channel.send(
+                f"{message.author.mention}, you are already marked as **excused** and cannot switch to present this session.",
+                delete_after=6
+            )
+            return
+
         if attendance_role_id:
             role = message.guild.get_role(attendance_role_id)
             if role:
@@ -2346,6 +2368,13 @@ async def on_message(message):
         attendance_role_id = data.get('attendance_role_id')
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
+
+        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'excused'):
+            await message.channel.send(
+                f"{message.author.mention}, you are already marked as **present** and cannot switch to excused this session.",
+                delete_after=6
+            )
+            return
         
         # Parse reason
         # "excuse because i am sick" -> reason: "because i am sick"
@@ -2388,6 +2417,7 @@ async def on_message(message):
                             "reason": reason
                         }
                         save_attendance_data(message.guild.id, data)
+                        database.increment_status_count(message.guild.id, message.author.id, "excused")
                         
                         await message.channel.send(f"Excused status marked for {message.author.mention}! Reason: {reason}", delete_after=10)
                         
