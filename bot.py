@@ -436,6 +436,12 @@ async def set_attendance_time(ctx, *, time_input: str = None):
 
 _settings_cache = {}
 
+def has_conflicting_attendance_status(records, user_id, target_status):
+    """Return True when user already has present/excused status and tries to switch."""
+    record = (records or {}).get(str(user_id), {})
+    current_status = record.get('status')
+    return current_status in ('present', 'excused') and current_status != target_status
+
 def load_attendance_data(guild_id):
     """Loads attendance data for a specific guild from the database."""
     config = database.get_guild_config(guild_id)
@@ -1318,7 +1324,7 @@ async def restart_attendance(ctx):
     Removes roles from present users, clears all records, and resets configuration.
     Usage: !restartattendance
     """
-    embed = discord.Embed(title="⚠️ Confirm Full Reset", description="Are you sure you want to restart everything?\n\nThis will:\n1. Remove 'Present' role from all users.\n2. Delete ALL attendance records.\n3. Reset configuration (Time Window, Roles, Channels) to default.\n\nType `confirm` to proceed.", color=discord.Color.red())
+    embed = discord.Embed(title="⚠️ Confirm Full Reset", description="Are you sure you want to restart everything?\n\nThis will:\n1. Remove attendance roles from users.\n2. Delete ALL attendance records.\n3. Delete ALL leaderboard stats data.\n4. Reset configuration (Time Window, Roles, Channels) to default.\n\nType `confirm` to proceed.", color=discord.Color.red())
     await ctx.send(embed=embed)
 
     def check(m):
@@ -1379,6 +1385,7 @@ async def restart_attendance(ctx):
     }
     
     save_attendance_data(ctx.guild.id, fresh_data)
+    database.clear_attendance_records(ctx.guild.id)
     database.clear_attendance_stats(ctx.guild.id)
     
     # Attempt to post a fresh, empty report to the report channel
@@ -1515,44 +1522,60 @@ async def attendance_leaderboard(ctx, page: int = 1):
     end_rank = offset + len(rows)
 
     embed = discord.Embed(
-        title="Attendance Leaderboard",
+        title="🏆 Attendance Leaderboard",
         description=(
-            f"{ctx.guild.name}\n"
-            f"Ranks {start_rank}–{end_rank}"
+            f"**{ctx.guild.name}**\n"
+            f"Showing ranks **{start_rank}–{end_rank}**"
         ),
-        color=discord.Color.blurple()
+        color=discord.Color.gold()
     )
     embed.timestamp = discord.utils.utcnow()
 
     if ctx.guild.icon:
         embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon.url)
-        embed.set_thumbnail(url=ctx.guild.icon.url)
     else:
         embed.set_author(name=ctx.guild.name)
+
+    # Show a recognizable logo in the leaderboard embed.
+    if bot.user and bot.user.display_avatar:
+        embed.set_thumbnail(url=bot.user.display_avatar.url)
+    elif ctx.guild.icon:
+        embed.set_thumbnail(url=ctx.guild.icon.url)
+
+    rank_emojis = {
+        1: "🥇",
+        2: "🥈",
+        3: "🥉"
+    }
 
     lines = []
     rank = start_rank
     for row in rows:
         member = ctx.guild.get_member(row["user_id"])
-        member_text = member.mention if member else f"<@{row['user_id']}>"
+        mention_text = member.mention if member else f"<@{row['user_id']}>"
         present = row["present_count"] or 0
         absent = row["absent_count"] or 0
         excused = row["excused_count"] or 0
 
+        rank_badge = rank_emojis.get(rank, f"`#{rank}`")
         lines.append(
-            f"#{rank} {member_text} — P:{present} A:{absent} E:{excused}"
+            f"{rank_badge} {mention_text}\n"
+            f"↳ ✅ Present: **{present}** | ❌ Absent: **{absent}** | ⚠️ Excused: **{excused}**"
         )
         rank += 1
 
-    embed.add_field(name="Rankings", value="\n".join(lines), inline=False)
+    embed.add_field(name="Top Members", value="\n\n".join(lines), inline=False)
     embed.add_field(
-        name="Navigation",
-        value=f"Use `!leaderboard <page>` • Pages 1–{total_pages}",
+        name="How to Navigate",
+        value=f"Use `!leaderboard <page>` • Page **{page}/{total_pages}**",
         inline=False
     )
     embed.set_footer(
-        text=f"Calvsbot • Page {page}/{total_pages}",
-        icon_url=ctx.guild.icon.url if ctx.guild.icon else None
+        text=(
+            f"Registrar Bot • Page {page}/{total_pages} • Total Members Ranked: {total_rows}\n"
+            "Leaderboard data is saved and will persist through bot restarts/updates until !resetattendance is used."
+        ),
+        icon_url=bot.user.display_avatar.url if bot.user and bot.user.display_avatar else None
     )
 
     await ctx.send(embed=embed)
@@ -1978,6 +2001,14 @@ class AttendanceView(discord.ui.View):
 
         # Check permitted role
         data = load_attendance_data(interaction.guild.id)
+
+        if status in ('present', 'excused') and has_conflicting_attendance_status(data.get('records'), user.id, status):
+            await interaction.response.send_message(
+                "You already submitted your attendance status for this session. Reset attendance before changing it.",
+                ephemeral=True
+            )
+            return
+
         allowed_role_id = data.get('allowed_role_id')
         if allowed_role_id:
             allowed_role = interaction.guild.get_role(allowed_role_id)
@@ -2245,6 +2276,13 @@ async def on_message(message):
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
 
+        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'present'):
+            await message.channel.send(
+                f"{message.author.mention}, you are already marked as **excused** and cannot switch to present this session.",
+                delete_after=6
+            )
+            return
+
         if attendance_role_id:
             role = message.guild.get_role(attendance_role_id)
             if role:
@@ -2332,6 +2370,13 @@ async def on_message(message):
         attendance_role_id = data.get('attendance_role_id')
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
+
+        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'excused'):
+            await message.channel.send(
+                f"{message.author.mention}, you are already marked as **present** and cannot switch to excused this session.",
+                delete_after=6
+            )
+            return
         
         # Parse reason
         # "excuse because i am sick" -> reason: "because i am sick"
@@ -2374,6 +2419,7 @@ async def on_message(message):
                             "reason": reason
                         }
                         save_attendance_data(message.guild.id, data)
+                        database.increment_status_count(message.guild.id, message.author.id, "excused")
                         
                         await message.channel.send(f"Excused status marked for {message.author.mention}! Reason: {reason}", delete_after=10)
                         
