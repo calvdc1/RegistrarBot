@@ -1178,6 +1178,11 @@ async def mark_excuse(ctx, member: discord.Member, *, reason: str):
     Marks a user as excused with a reason.
     Usage: !excuse @User I was sick
     """
+    allowed, msg = is_in_attendance_window(ctx.guild.id)
+    if not allowed:
+        await ctx.send(f"{msg} Excuse submissions are also closed once attendance time is over.")
+        return
+
     settings = load_settings(ctx.guild.id)
     if settings.get('require_admin_excuse', True):
         if not ctx.author.guild_permissions.manage_roles:
@@ -1956,10 +1961,12 @@ class AttendanceView(discord.ui.View):
     async def handle_attendance(self, interaction, status, reason=None):
         user = interaction.user
         
-        # Check Window (only for present)
-        if status == 'present':
+        # Check Window (present and excused are both blocked when closed)
+        if status in ('present', 'excused'):
             allowed, msg = is_in_attendance_window(interaction.guild.id)
             if not allowed:
+                 if status == 'excused':
+                     msg = f"{msg} Excuse submissions are also closed once attendance time is over."
                  await interaction.response.send_message(msg, ephemeral=True)
                  return
 
@@ -2307,6 +2314,11 @@ async def on_message(message):
             await refresh_attendance_report(message.guild, message.channel, force_update=True)
     elif msg_content.startswith("excuse"):
         if not message.guild:
+            return
+
+        allowed, window_msg = is_in_attendance_window(message.guild.id)
+        if not allowed:
+            await message.channel.send(f"{window_msg} Excuse submissions are also closed once attendance time is over.", delete_after=5)
             return
             
         settings = load_settings(message.guild.id)
