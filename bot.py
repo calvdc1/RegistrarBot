@@ -1553,13 +1553,14 @@ async def attendance_leaderboard(ctx, page: int = 1):
     for row in rows:
         member = ctx.guild.get_member(row["user_id"])
         mention_text = member.mention if member else f"<@{row['user_id']}>"
+        tag_text = member.name if member else f"User ID: {row['user_id']}"
         present = row["present_count"] or 0
         absent = row["absent_count"] or 0
         excused = row["excused_count"] or 0
 
         rank_badge = rank_emojis.get(rank, f"`#{rank}`")
         lines.append(
-            f"{rank_badge} {mention_text}\n"
+            f"{rank_badge} {mention_text} • `{tag_text}`\n"
             f"↳ ✅ Present: **{present}** | ❌ Absent: **{absent}** | ⚠️ Excused: **{excused}**"
         )
         rank += 1
@@ -1571,10 +1572,7 @@ async def attendance_leaderboard(ctx, page: int = 1):
         inline=False
     )
     embed.set_footer(
-        text=(
-            f"Registrar Bot • Page {page}/{total_pages} • Total Members Ranked: {total_rows}\n"
-            "Leaderboard data is saved and will persist through bot restarts/updates until !resetattendance is used."
-        ),
+        text=f"Registrar Bot • Total Members Ranked: {total_rows}",
         icon_url=bot.user.display_avatar.url if bot.user and bot.user.display_avatar else None
     )
 
