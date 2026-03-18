@@ -1,0 +1,16 @@
+{
+  "name": "registrar-bot-cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cf:deploy": "wrangler deploy",
+    "cf:dev": "wrangler dev",
+    "cf:check": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "^4.43.0"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.0.28"
+  }
+}
