@@ -8,3 +8,5 @@ venv/
 *.log
 attendance.db
 legacy_json_backup/
+node_modules/
+.wrangler/
