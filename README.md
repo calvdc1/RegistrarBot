@@ -154,8 +154,9 @@ This bot is configured for deployment on [Render](https://render.com).
     *   **Runtime**: Python 3
     *   **Build Command**: `pip install -r requirements.txt`
     *   **Start Command**: `python bot.py`
-5.  Add your `DISCORD_TOKEN` in the **Environment Variables** section of your Render service.
-6.  (Optional) Add a **Persistent Disk** mounted at `/var/data` if you want the database to survive redeploys.
+5.  Add your `DISCORD_TOKEN` in the **Environment Variables** section of your Render service. If you created the service from `render.yaml`, note that the placeholder secret is declared with `sync: false`, so you still need to provide the real token in Render.
+6.  Until `DISCORD_TOKEN` is set, the health-check web server can still respond, but the bot itself will not log in to Discord.
+7.  (Optional) Add a **Persistent Disk** mounted at `/data` if you want the database to survive redeploys.
 
 ### Vercel
 

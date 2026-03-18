@@ -2459,10 +2459,16 @@ async def on_message(message):
 
 
 if __name__ == "__main__":
+    keep_alive()
+
     if not TOKEN:
-        print("Error: Please set your DISCORD_TOKEN in the .env file.")
+        logger.warning(
+            "DISCORD_TOKEN is not set. The healthcheck server will stay online, "
+            "but the Discord bot will not connect until the environment variable is configured."
+        )
+        while True:
+            time.sleep(3600)
     else:
-        keep_alive()
         try:
             bot.run(TOKEN)
         except discord.LoginFailure as e:
