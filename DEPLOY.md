@@ -16,7 +16,8 @@ This method uses the included `render.yaml` file to set up a Persistent Disk aut
 4. Connect your repository.
 5. Render will automatically detect the `render.yaml` configuration.
 6. Click **Apply**.
-7. **Environment Variables**: You may need to enter your `DISCORD_TOKEN` in the dashboard if prompted, or add it manually in the "Environment" tab of the service after creation.
+7. **Environment Variables**: Enter your `DISCORD_TOKEN` in the dashboard if prompted, or add it manually in the **Environment** tab after creation. Render blueprint placeholders created with `sync: false` do **not** include a value automatically.
+8. If the token is missing, the service can stay online for health checks, but the bot will **not** connect to Discord until `DISCORD_TOKEN` is configured and the service is redeployed.
 
 ## Method 2: Free Tier (No Persistence)
 If you only need the bot for testing and don't care about losing data on restart:
