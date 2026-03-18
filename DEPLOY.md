@@ -60,3 +60,39 @@ This repository now includes `railway.json`, which tells Railway to start the bo
 5. The Flask/Waitress health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
 
 > Note: Cloudflare is used here as the DNS/proxy layer in front of Railway. Cloudflare Workers/Pages are not suitable for running this always-on Discord bot process by themselves.
+
+
+## Cloudflare Containers
+
+This repo now includes a direct Cloudflare deployment path for Cloudflare's global network using **Cloudflare Containers**.
+
+### Included files
+- `Dockerfile`: Builds the Python bot as a `linux/amd64` image for Cloudflare Containers.
+- `wrangler.jsonc`: Declares the Worker, container binding, Durable Object migration, and a 1-minute cron keepalive.
+- `cloudflare-worker/index.js`: Proxies HTTP requests to the container, forwards the `DISCORD_TOKEN` Worker secret into the container environment, and pings `/healthz` every minute so the bot process stays available.
+
+### Deploy steps
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Log in to Cloudflare:
+   ```bash
+   npx wrangler login
+   ```
+3. Store the bot token as a Worker secret:
+   ```bash
+   npx wrangler secret put DISCORD_TOKEN
+   ```
+4. Deploy the Worker + container:
+   ```bash
+   npm run cf:deploy
+   ```
+5. Verify rollout status:
+   ```bash
+   npx wrangler containers list
+   npx wrangler containers images list
+   ```
+
+### Limitation
+Cloudflare Containers do **not** offer persistent disk yet. That means the included SQLite database is suitable only for testing on Cloudflare unless you swap persistence to an external database or object-storage-backed design.
