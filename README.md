@@ -45,6 +45,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 
 ### 💾 Persistence
 - **Database Storage**: SQLite database ensures data survives restarts.
+- **Railway + Cloudflare Ready**: Includes Railway health checks and Cloudflare-friendly HTTP endpoints for custom-domain deployments.
 - **Render.com Ready**: Configured for easy deployment with persistent disk support.
 
 ---
@@ -102,7 +103,7 @@ Run these commands in your server to set up the bot. **The bot will notify you w
 After setup, use:
 
 - `!attendance` to post or refresh the Daily Attendance Report.
-- `present`, `absent`, or the attendance buttons in the attendance channel to update the report.
+- `present`, `absent`, or the attendance buttons in the attendance channel to update the report. Once a user is marked present, absent, or excused for the session, they cannot switch to another status until an admin resets them.
 - `!leaderboard` to show the gold Attendance Leaderboard.
 
 ---
@@ -112,7 +113,7 @@ After setup, use:
 ### User Commands
 | Command | Description |
 | :--- | :--- |
-| `present` / `absent` | Mark yourself as present or absent (requires Permitted Role & Active Window). |
+| `present` / `absent` | Mark yourself as present or absent (requires Permitted Role & Active Window). Once submitted, you cannot switch to another status until an admin resets you. |
 | `!nick <Name>` | Change your nickname (suffix added automatically). |
 | `!attendance` | View the current attendance status. |
 
@@ -142,6 +143,18 @@ After setup, use:
 ---
 
 ## ☁️ Deployment
+
+### Railway + Cloudflare
+
+This bot now includes a production-friendly HTTP health server that works well on [Railway](https://railway.com) and when a Railway app is placed behind [Cloudflare](https://www.cloudflare.com/) DNS/proxying for a custom domain.
+
+1.  Create a new Railway project and deploy this repository. Railway will detect Python automatically, and `railway.json` configures `python bot.py` plus a `/healthz` health check.
+2.  In Railway variables, set:
+    - `DISCORD_TOKEN` = your Discord bot token
+    - `DB_FILE` = `/data/attendance.db` if you attach a Railway volume, or leave it unset to use the local filesystem
+3.  If you need persistent attendance data, attach a Railway Volume and mount it at `/data`.
+4.  (Optional) In Cloudflare DNS, point a custom domain or subdomain to your Railway hostname. The built-in `/`, `/healthz`, and `/readyz` endpoints return JSON and disable caching, which makes them safe for Cloudflare proxying and uptime checks.
+5.  If Cloudflare proxying causes issues during first setup, temporarily switch the DNS record to **DNS only** until SSL finishes provisioning, then re-enable proxying if desired.
 
 ### Render.com
 

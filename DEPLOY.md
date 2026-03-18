@@ -48,3 +48,15 @@ If it doesn't deploy automatically:
 1. Go to your service on Render.
 2. Click the **"Manual Deploy"** button.
 3. Select **"Deploy latest commit"**.
+
+## Railway + Cloudflare
+
+This repository now includes `railway.json`, which tells Railway to start the bot with `python bot.py` and use `/healthz` for health checks. The HTTP server also exposes `/readyz`, so you can place the Railway app behind Cloudflare and still have a simple endpoint for checks.
+
+1. Create a new Railway project from this repository.
+2. Add `DISCORD_TOKEN` in Railway Variables.
+3. For persistent SQLite storage, attach a Railway Volume and set `DB_FILE=/data/attendance.db`.
+4. After the first deployment succeeds, optionally add a Cloudflare-managed custom domain that points to the Railway service.
+5. The Flask/Waitress health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
+
+> Note: Cloudflare is used here as the DNS/proxy layer in front of Railway. Cloudflare Workers/Pages are not suitable for running this always-on Discord bot process by themselves.
