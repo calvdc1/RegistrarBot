@@ -960,3 +960,7 @@ NoneType: None
 2026-02-21 03:22:14,455 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
 2026-02-21 03:23:14,399 [ERROR] Error in check_attendance_expiry loop for guild 1434956894262399108: cannot access local variable 'start_str' where it is not associated with a value
 2026-02-21 03:23:14,405 [ERROR] Error in check_attendance_expiry loop for guild 1465046611842306384: cannot access local variable 'start_str' where it is not associated with a value
+2026-03-18 15:27:07,849 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2026-03-18 15:27:07,849 [WARNING] davey is not installed, voice will NOT be supported
+2026-03-18 15:27:07,852 [WARNING] DISCORD_TOKEN is not set. The healthcheck server will stay online, but the Discord bot will not connect until the environment variable is configured.
+2026-03-18 15:27:07,864 [INFO] Serving on http://0.0.0.0:8080
