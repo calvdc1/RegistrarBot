@@ -437,10 +437,12 @@ async def set_attendance_time(ctx, *, time_input: str = None):
 _settings_cache = {}
 
 def has_conflicting_attendance_status(records, user_id, target_status):
-    """Return True when user already has present/excused status and tries to switch."""
+    """Return the existing attendance status when a user tries to switch states."""
     record = (records or {}).get(str(user_id), {})
     current_status = record.get('status')
-    return current_status in ('present', 'excused') and current_status != target_status
+    if current_status in ('present', 'absent', 'excused') and current_status != target_status:
+        return current_status
+    return None
 
 def load_attendance_data(guild_id):
     """Loads attendance data for a specific guild from the database."""
@@ -1156,6 +1158,13 @@ async def mark_present(ctx, member: discord.Member = None):
             return
 
         data = load_attendance_data(ctx.guild.id)
+        existing_status = has_conflicting_attendance_status(data.get('records'), ctx.author.id, 'present')
+        if existing_status:
+            await ctx.send(
+                f"You are already marked as **{existing_status}** and cannot switch to **present** this session. Reset attendance before changing it."
+            )
+            return
+
         allowed_role_id = data.get('allowed_role_id')
         if allowed_role_id:
             allowed_role = ctx.guild.get_role(allowed_role_id)
@@ -2000,9 +2009,10 @@ class AttendanceView(discord.ui.View):
         # Check permitted role
         data = load_attendance_data(interaction.guild.id)
 
-        if status in ('present', 'excused') and has_conflicting_attendance_status(data.get('records'), user.id, status):
+        existing_status = has_conflicting_attendance_status(data.get('records'), user.id, status)
+        if existing_status:
             await interaction.response.send_message(
-                "You already submitted your attendance status for this session. Reset attendance before changing it.",
+                f"You are already marked as **{existing_status}** and cannot switch to **{status}** this session. Reset attendance before changing it.",
                 ephemeral=True
             )
             return
@@ -2278,10 +2288,10 @@ async def on_message(message):
         status_role_name = 'attendance' if status == 'present' else 'absence'
         success_emoji = '✅' if status == 'present' else '❌'
 
-        if has_conflicting_attendance_status(data.get('records'), message.author.id, status):
-            blocked_status = data.get('records', {}).get(str(message.author.id), {}).get('status', 'current')
+        existing_status = has_conflicting_attendance_status(data.get('records'), message.author.id, status)
+        if existing_status:
             await message.channel.send(
-                f"{message.author.mention}, you are already marked as **{blocked_status}** and cannot switch to {status} this session.",
+                f"{message.author.mention}, you are already marked as **{existing_status}** and cannot switch to **{status}** this session.",
                 delete_after=6
             )
             return
@@ -2390,9 +2400,10 @@ async def on_message(message):
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
 
-        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'excused'):
+        existing_status = has_conflicting_attendance_status(data.get('records'), message.author.id, 'excused')
+        if existing_status:
             await message.channel.send(
-                f"{message.author.mention}, you are already marked as **present** and cannot switch to excused this session.",
+                f"{message.author.mention}, you are already marked as **{existing_status}** and cannot switch to **excused** this session.",
                 delete_after=6
             )
             return
