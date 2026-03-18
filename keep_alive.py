@@ -13,6 +13,8 @@ def _platform_name():
         return "railway"
     if os.getenv("RENDER"):
         return "render"
+    if os.getenv("CF_DEPLOYMENT_TARGET") == "cloudflare-containers" or os.getenv("CLOUDFLARE_DEPLOYMENT_ID"):
+        return "cloudflare-containers"
     return "generic"
 
 

@@ -45,7 +45,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 
 ### 💾 Persistence
 - **Database Storage**: SQLite database ensures data survives restarts.
-- **Railway + Cloudflare Ready**: Includes Railway health checks and Cloudflare-friendly HTTP endpoints for custom-domain deployments.
+- **Railway + Cloudflare Ready**: Includes Railway health checks, Cloudflare-friendly HTTP endpoints, and first-class Cloudflare Containers deployment files.
 - **Render.com Ready**: Configured for easy deployment with persistent disk support.
 
 ---
@@ -155,6 +155,35 @@ This bot now includes a production-friendly HTTP health server that works well o
 3.  If you need persistent attendance data, attach a Railway Volume and mount it at `/data`.
 4.  (Optional) In Cloudflare DNS, point a custom domain or subdomain to your Railway hostname. The built-in `/`, `/healthz`, and `/readyz` endpoints return JSON and disable caching, which makes them safe for Cloudflare proxying and uptime checks.
 5.  If Cloudflare proxying causes issues during first setup, temporarily switch the DNS record to **DNS only** until SSL finishes provisioning, then re-enable proxying if desired.
+
+### Cloudflare Containers
+
+This repository can now deploy directly to the [Cloudflare global network](https://developers.cloudflare.com/containers/) using **Cloudflare Containers**. The repo includes a `Dockerfile`, `wrangler.jsonc`, and a Worker entrypoint that proxies requests to a named container instance, injects `DISCORD_TOKEN` into the container runtime, and uses a one-minute Cron Trigger to keep the bot container warm enough to preserve the Discord connection.
+
+1. Install Docker, Node.js, and npm locally. Cloudflare's official flow builds the container image with Docker during `wrangler deploy`.
+2. Install JavaScript dependencies:
+   ```bash
+   npm install
+   ```
+3. Authenticate Wrangler:
+   ```bash
+   npx wrangler login
+   ```
+4. Add your Discord token as a Cloudflare Worker secret:
+   ```bash
+   npx wrangler secret put DISCORD_TOKEN
+   ```
+5. Deploy to Cloudflare:
+   ```bash
+   npm run cf:deploy
+   ```
+6. Check rollout status if needed:
+   ```bash
+   npx wrangler containers list
+   npx wrangler containers images list
+   ```
+
+**Important persistence note:** Cloudflare Containers currently provide **ephemeral disk**, so the bundled SQLite database will reset whenever the container is replaced or restarted. For production attendance history on Cloudflare, move persistence to an external database or storage service before relying on long-term data retention.
 
 ### Render.com
 
