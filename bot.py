@@ -2234,12 +2234,13 @@ async def on_message(message):
 
     msg_content = message.content.strip().lower()
 
-    if msg_content == "present":
+    if msg_content in ("present", "absent"):
         if not message.guild:
             return
 
         settings = load_settings(message.guild.id)
-        
+        status = msg_content
+
         # Check Window
         allowed, window_msg = is_in_attendance_window(message.guild.id)
         if not allowed:
@@ -2253,7 +2254,7 @@ async def on_message(message):
             return
 
         data = load_attendance_data(message.guild.id)
-        
+
         # Restrict to configured present channel if set
         present_channel_id = data.get('present_channel_id')
         if present_channel_id and message.channel.id != present_channel_id:
@@ -2261,7 +2262,7 @@ async def on_message(message):
             if target_channel:
                 await message.channel.send(f"You can only mark your attendance in {target_channel.mention}.", delete_after=5)
             return
-        
+
         # Check permissions
         allowed_role_id = data.get('allowed_role_id')
         if allowed_role_id:
@@ -2273,68 +2274,88 @@ async def on_message(message):
         attendance_role_id = data.get('attendance_role_id')
         absent_role_id = data.get('absent_role_id')
         excused_role_id = data.get('excused_role_id')
+        status_role_id = attendance_role_id if status == 'present' else absent_role_id
+        status_role_name = 'attendance' if status == 'present' else 'absence'
+        success_emoji = '✅' if status == 'present' else '❌'
 
-        if has_conflicting_attendance_status(data.get('records'), message.author.id, 'present'):
+        if has_conflicting_attendance_status(data.get('records'), message.author.id, status):
+            blocked_status = data.get('records', {}).get(str(message.author.id), {}).get('status', 'current')
             await message.channel.send(
-                f"{message.author.mention}, you are already marked as **excused** and cannot switch to present this session.",
+                f"{message.author.mention}, you are already marked as **{blocked_status}** and cannot switch to {status} this session.",
                 delete_after=6
             )
             return
 
-        if attendance_role_id:
-            role = message.guild.get_role(attendance_role_id)
+        if status_role_id:
+            role = message.guild.get_role(status_role_id)
             if role:
                 user_id = str(message.author.id)
                 now = datetime.datetime.now()
-                
-                # Check if already marked today (prevent spamming present)
-                # We check if they HAVE the role already as a proxy for "already present"
+
+                # Check if already marked today (prevent spamming status updates)
+                # We check if they HAVE the role already as a proxy for already having that status.
                 if role in message.author.roles:
-                     await message.channel.send(f"{message.author.mention}, you have already marked your attendance!", delete_after=5)
+                     await message.channel.send(f"{message.author.mention}, you have already marked your status as {status}!", delete_after=5)
                 else:
                     # Give role
                     try:
                         # Remove conflicting roles first
                         roles_to_remove = []
-                        if absent_role_id: roles_to_remove.append(absent_role_id)
-                        if excused_role_id: roles_to_remove.append(excused_role_id)
-                        
+                        if status == 'present':
+                            if absent_role_id: roles_to_remove.append(absent_role_id)
+                            if excused_role_id: roles_to_remove.append(excused_role_id)
+                        else:
+                            if attendance_role_id: roles_to_remove.append(attendance_role_id)
+                            if excused_role_id: roles_to_remove.append(excused_role_id)
+
                         for rid in roles_to_remove:
                             r = message.guild.get_role(rid)
                             if r and r in message.author.roles:
                                 await message.author.remove_roles(r)
 
                         await message.author.add_roles(role)
-                        await message.add_reaction("✅")
-                        
-                        # Update record with FULL timestamp for 24h expiry
+                        await message.add_reaction(success_emoji)
+
                         if 'records' not in data:
                             data['records'] = {}
                         data['records'][user_id] = {
-                            "status": "present",
+                            "status": status,
                             "timestamp": now.isoformat(),
                             "channel_id": message.channel.id
                         }
                         save_attendance_data(message.guild.id, data)
-                        database.increment_status_count(message.guild.id, message.author.id, "present")
-                        
-                        await message.channel.send(f"Attendance marked for {message.author.mention}! You have been given the {role.name} role.", delete_after=10)
-                        
+                        database.increment_status_count(message.guild.id, message.author.id, status)
+
+                        await message.channel.send(
+                            f"{status.title()} marked for {message.author.mention}! You have been given the {role.name} role.",
+                            delete_after=10
+                        )
+
                         # DM the user
                         try:
-                            embed = discord.Embed(
-                                title="✅ Attendance Confirmed",
-                                description="Your attendance has been checked successfully.",
-                                color=discord.Color.gold()
-                            )
+                            if status == 'present':
+                                embed = discord.Embed(
+                                    title="✅ Attendance Confirmed",
+                                    description="Your attendance has been checked successfully.",
+                                    color=discord.Color.gold()
+                                )
+                                embed.add_field(name="Status", value="Present", inline=True)
+                                embed.add_field(name="Note", value="You will be notified once the 12-hour period has expired, after which you will be allowed to mark yourself as present again.", inline=False)
+                            else:
+                                embed = discord.Embed(
+                                    title="Attendance Status: Absent",
+                                    description=f"You have been marked as **ABSENT** in **{message.guild.name}**.",
+                                    color=discord.Color.red()
+                                )
+                                embed.add_field(name="Status", value="Absent", inline=True)
+                                embed.add_field(name="Marked At", value=now.strftime("%I:%M %p"), inline=True)
+
                             if message.guild.icon:
                                 embed.set_author(name=message.guild.name, icon_url=message.guild.icon.url)
                                 embed.set_thumbnail(url=message.guild.icon.url)
                             else:
                                 embed.set_author(name=message.guild.name)
 
-                            embed.add_field(name="Status", value="Present", inline=True)
-                            embed.add_field(name="Note", value="You will be notified once the 12-hour period has expired, after which you will be allowed to mark yourself as present again.", inline=False)
                             embed.set_footer(text=f"Calvsbot • Server: {message.guild.name}")
                             await message.author.send(embed=embed)
                         except discord.Forbidden:
@@ -2344,7 +2365,7 @@ async def on_message(message):
 
                         await refresh_attendance_report(message.guild, message.channel, force_update=True)
                     except discord.Forbidden:
-                        await message.channel.send("I tried to give you the role, but I don't have permission! Please check my role hierarchy.")
+                        await message.channel.send(f"I tried to give you the {status_role_name} role, but I don't have permission! Please check my role hierarchy.")
     elif msg_content == "presents":
         if message.guild:
             await refresh_attendance_report(message.guild, message.channel, force_update=True)

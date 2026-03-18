@@ -102,7 +102,7 @@ Run these commands in your server to set up the bot. **The bot will notify you w
 After setup, use:
 
 - `!attendance` to post or refresh the Daily Attendance Report.
-- `present` (or the attendance buttons) in the attendance channel to mark users and update the report.
+- `present`, `absent`, or the attendance buttons in the attendance channel to update the report.
 - `!leaderboard` to show the gold Attendance Leaderboard.
 
 ---
@@ -112,7 +112,7 @@ After setup, use:
 ### User Commands
 | Command | Description |
 | :--- | :--- |
-| `present` | Mark yourself as present (requires Permitted Role & Active Window). |
+| `present` / `absent` | Mark yourself as present or absent (requires Permitted Role & Active Window). |
 | `!nick <Name>` | Change your nickname (suffix added automatically). |
 | `!attendance` | View the current attendance status. |
 
