@@ -65,7 +65,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 1. Clone the repository.
 2. Install dependencies:
    ```bash
-   pip install -r requirements-runtime.txt
+   python3 -m pip install -r requirements-runtime.txt
    ```
 3. Create a `.env` file with your bot token:
    ```
@@ -78,7 +78,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
    ```
 4. Run the bot:
    ```bash
-   python bot.py
+   python3 bot.py
    ```
 
 If `DB_FILE` is not set, the bot now automatically prefers `/data/attendance.db` when a `/data` volume exists, and otherwise falls back to `data/attendance.db`.
@@ -168,7 +168,7 @@ After setup, use:
 
 This bot now includes a production-friendly HTTP health server that works well on [Railway](https://railway.com) and when a Railway app is placed behind [Cloudflare](https://www.cloudflare.com/) DNS/proxying for a custom domain.
 
-1.  Create a new Railway project and deploy this repository. Railway will detect Python automatically, and `railway.json` configures `python bot.py` plus a `/healthz` health check.
+1.  Create a new Railway project and deploy this repository. Railway will detect Python automatically, and `railway.json` configures `python3 bot.py` plus a `/healthz` health check.
 2.  In Railway variables, set:
     - `DISCORD_TOKEN` = your Discord bot token
     - `DB_FILE` = `/data/attendance.db` if you attach a Railway volume, or leave it unset and the bot will auto-select `/data/attendance.db` when that volume exists
@@ -215,8 +215,8 @@ This bot is configured for deployment on [Render](https://render.com).
 3.  Connect your GitHub repository.
 4.  Render should automatically detect the `render.yaml` configuration.
     *   **Runtime**: Python 3
-    *   **Build Command**: `pip install -r requirements-runtime.txt`
-    *   **Start Command**: `python bot.py`
+    *   **Build Command**: `python3 -m pip install -r requirements-runtime.txt`
+    *   **Start Command**: `python3 bot.py`
 5.  Add your `DISCORD_TOKEN` in the **Environment Variables** section of your Render service. If you created the service from `render.yaml`, note that the placeholder secret is declared with `sync: false`, so you still need to provide the real token in Render.
 6.  Until `DISCORD_TOKEN` is set, the health-check web server can still respond, but the bot itself will not log in to Discord.
 7.  Add a **Persistent Disk** mounted at `/data` so both `attendance.db` and `attendance_snapshot.json` survive restarts and redeploys.

@@ -27,8 +27,8 @@ If you only need the bot for testing and don't care about losing data on restart
 2. Connect your GitHub repo.
 3. **Settings**:
    - **Runtime**: Python 3
-   - **Build Command**: `pip install -r requirements-runtime.txt`
-   - **Start Command**: `python bot.py`
+   - **Build Command**: `python3 -m pip install -r requirements-runtime.txt`
+   - **Start Command**: `python3 bot.py`
 4. **Environment Variables**:
    - `DISCORD_TOKEN`: Your bot token.
    - `PYTHON_VERSION`: `3.12.12`
@@ -52,7 +52,7 @@ If it doesn't deploy automatically:
 
 ## Railway + Cloudflare
 
-This repository now includes `railway.json`, which tells Railway to start the bot with `python bot.py` and use `/healthz` for health checks. The HTTP server also exposes `/readyz`, so you can place the Railway app behind Cloudflare and still have a simple endpoint for checks.
+This repository now includes `railway.json`, which tells Railway to start the bot with `python3 bot.py` and use `/healthz` for health checks. The HTTP server also exposes `/readyz`, so you can place the Railway app behind Cloudflare and still have a simple endpoint for checks.
 
 1. Create a new Railway project from this repository. The included `nixpacks.toml` tells Railway to install `requirements-runtime.txt` before starting the bot.
 2. Add `DISCORD_TOKEN` in Railway Variables.
