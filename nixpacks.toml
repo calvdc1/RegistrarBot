@@ -1,5 +1,7 @@
+providers = ["python"]
+
 [phases.install]
-cmds = ["pip install -r requirements-runtime.txt"]
+cmds = ["python3 -m pip install -r requirements-runtime.txt"]
 
 [start]
-cmd = "python bot.py"
+cmd = "python3 bot.py"
