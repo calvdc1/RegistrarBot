@@ -2,11 +2,146 @@ import os
 import sqlite3
 import json
 import logging
+from pathlib import Path
 from datetime import datetime
 
-# Use environment variable for DB location (default to local file)
-DB_FILE = os.getenv("DB_FILE", "attendance.db")
+
+def resolve_db_file():
+    """Choose a database path, preferring persistent storage when available."""
+    configured_path = os.getenv("DB_FILE")
+    if configured_path:
+        return configured_path
+
+    configured_dir = os.getenv("DB_DIR")
+    if configured_dir:
+        return str(Path(configured_dir) / "attendance.db")
+
+    candidate_dirs = []
+    persistent_dir = Path("/data")
+    if persistent_dir.exists() and persistent_dir.is_dir():
+        candidate_dirs.append(persistent_dir)
+
+    candidate_dirs.append(Path("data"))
+
+    for directory in candidate_dirs:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            return str(directory / "attendance.db")
+        except OSError:
+            continue
+
+    return "attendance.db"
+
+
+DB_FILE = resolve_db_file()
+SNAPSHOT_FILE = os.getenv("DB_SNAPSHOT_FILE", str(Path(DB_FILE).with_name("attendance_snapshot.json")))
 logger = logging.getLogger(__name__)
+
+
+def write_snapshot():
+    """Writes a JSON backup snapshot beside the SQLite database."""
+    try:
+        snapshot_path = Path(SNAPSHOT_FILE)
+        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        payload = export_all_data()
+        snapshot_path.write_text(
+            json.dumps(payload, indent=2, sort_keys=True),
+            encoding="utf-8"
+        )
+    except Exception as e:
+        logger.warning("Failed to write snapshot %s: %s", SNAPSHOT_FILE, e)
+
+
+def export_all_data():
+    """Exports the database contents as plain JSON-serializable structures."""
+    conn = get_connection()
+    c = conn.cursor()
+
+    tables = {}
+    for table_name in ("guild_configs", "attendance_records", "attendance_stats", "custom_commands"):
+        c.execute(f"SELECT * FROM {table_name}")
+        tables[table_name] = [dict(row) for row in c.fetchall()]
+
+    conn.close()
+    return {
+        "exported_at": datetime.utcnow().isoformat() + "Z",
+        "db_file": DB_FILE,
+        "tables": tables
+    }
+
+
+def is_database_empty(conn):
+    """Returns True when all persisted tables are empty."""
+    c = conn.cursor()
+    for table_name in ("guild_configs", "attendance_records", "attendance_stats", "custom_commands"):
+        c.execute(f"SELECT COUNT(*) AS count FROM {table_name}")
+        row = c.fetchone()
+        if row and row["count"]:
+            return False
+    return True
+
+
+def restore_snapshot_if_needed(conn):
+    """Restores the JSON snapshot into a new empty database."""
+    snapshot_path = Path(SNAPSHOT_FILE)
+    if not snapshot_path.exists() or not is_database_empty(conn):
+        return
+
+    try:
+        payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        tables = payload.get("tables", {})
+        c = conn.cursor()
+
+        c.executemany(
+            '''INSERT INTO guild_configs (
+                   guild_id, attendance_role_id, absent_role_id, excused_role_id,
+                   welcome_channel_id, report_channel_id, last_report_message_id,
+                   last_report_channel_id, attendance_mode, attendance_expiry_hours,
+                   window_start_time, window_end_time, last_processed_date,
+                   last_opened_date, allow_self_marking, require_admin_excuse,
+                   auto_nick_on_join, enforce_suffix, remove_suffix_on_role_loss,
+                   suffix_format, present_channel_id
+               ) VALUES (
+                   :guild_id, :attendance_role_id, :absent_role_id, :excused_role_id,
+                   :welcome_channel_id, :report_channel_id, :last_report_message_id,
+                   :last_report_channel_id, :attendance_mode, :attendance_expiry_hours,
+                   :window_start_time, :window_end_time, :last_processed_date,
+                   :last_opened_date, :allow_self_marking, :require_admin_excuse,
+                   :auto_nick_on_join, :enforce_suffix, :remove_suffix_on_role_loss,
+                   :suffix_format, :present_channel_id
+               )''',
+            tables.get("guild_configs", [])
+        )
+        c.executemany(
+            '''INSERT INTO attendance_records (
+                   id, guild_id, user_id, status, timestamp, channel_id, reason
+               ) VALUES (
+                   :id, :guild_id, :user_id, :status, :timestamp, :channel_id, :reason
+               )''',
+            tables.get("attendance_records", [])
+        )
+        c.executemany(
+            '''INSERT INTO attendance_stats (
+                   guild_id, user_id, present_count, absent_count, excused_count
+               ) VALUES (
+                   :guild_id, :user_id, :present_count, :absent_count, :excused_count
+               )''',
+            tables.get("attendance_stats", [])
+        )
+        c.executemany(
+            '''INSERT INTO custom_commands (
+                   guild_id, command_name, response_text
+               ) VALUES (
+                   :guild_id, :command_name, :response_text
+               )''',
+            tables.get("custom_commands", [])
+        )
+
+        conn.commit()
+        logger.info("Restored database contents from snapshot %s", snapshot_path)
+    except Exception as e:
+        conn.rollback()
+        logger.warning("Failed to restore snapshot %s: %s", snapshot_path, e)
 
 def get_connection():
     """Establishes a connection to the SQLite database."""
@@ -75,6 +210,15 @@ def init_db():
         PRIMARY KEY (guild_id, user_id)
     )''')
 
+    c.execute('''CREATE TABLE IF NOT EXISTS custom_commands (
+        guild_id INTEGER,
+        command_name TEXT,
+        response_text TEXT NOT NULL,
+        PRIMARY KEY (guild_id, command_name)
+    )''')
+
+    c.execute('CREATE INDEX IF NOT EXISTS idx_custom_commands_guild ON custom_commands (guild_id)')
+
     c.execute("PRAGMA table_info('attendance_stats')")
     existing_columns = [row[1] for row in c.fetchall()]
     if 'present_count' not in existing_columns:
@@ -85,8 +229,9 @@ def init_db():
         c.execute("ALTER TABLE attendance_stats ADD COLUMN excused_count INTEGER DEFAULT 0")
 
     conn.commit()
+    restore_snapshot_if_needed(conn)
     conn.close()
-    logger.info("Database initialized.")
+    logger.info("Database initialized at %s (snapshot: %s).", DB_FILE, SNAPSHOT_FILE)
 
 def get_guild_config(guild_id):
     """Retrieves configuration for a guild."""
@@ -119,6 +264,7 @@ def update_guild_config(guild_id, **kwargs):
     
     conn.commit()
     conn.close()
+    write_snapshot()
 
 def get_attendance_records(guild_id):
     """Retrieves all attendance records for a guild."""
@@ -176,6 +322,7 @@ def add_or_update_record(guild_id, user_id, status, timestamp, channel_id=None, 
     
     conn.commit()
     conn.close()
+    write_snapshot()
 
 def replace_all_records(guild_id, records_dict):
     """Replaces all attendance records for a guild (bulk save)."""
@@ -211,6 +358,7 @@ def replace_all_records(guild_id, records_dict):
         raise
     finally:
         conn.close()
+    write_snapshot()
 
 def clear_attendance_records(guild_id):
     """Clears all attendance records for a guild (e.g., reset)."""
@@ -219,6 +367,7 @@ def clear_attendance_records(guild_id):
     c.execute('DELETE FROM attendance_records WHERE guild_id = ?', (guild_id,))
     conn.commit()
     conn.close()
+    write_snapshot()
 
 def clear_attendance_stats(guild_id):
     """Clears all attendance stats (present/absent/excused counts) for a guild."""
@@ -227,6 +376,7 @@ def clear_attendance_stats(guild_id):
     c.execute('DELETE FROM attendance_stats WHERE guild_id = ?', (guild_id,))
     conn.commit()
     conn.close()
+    write_snapshot()
 
 def increment_status_count(guild_id, user_id, status, count=1):
     conn = get_connection()
@@ -254,6 +404,7 @@ def increment_status_count(guild_id, user_id, status, count=1):
     )
     conn.commit()
     conn.close()
+    write_snapshot()
 
 def get_attendance_leaderboard_count(guild_id):
     conn = get_connection()
@@ -278,3 +429,66 @@ def get_attendance_leaderboard(guild_id, limit=10, offset=0):
     rows = c.fetchall()
     conn.close()
     return rows
+
+
+def get_custom_commands(guild_id):
+    """Returns all custom commands for a guild keyed by normalized command name."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(
+        '''SELECT command_name, response_text
+           FROM custom_commands
+           WHERE guild_id = ?
+           ORDER BY command_name ASC''',
+        (guild_id,)
+    )
+    rows = c.fetchall()
+    conn.close()
+    return {row['command_name']: row['response_text'] for row in rows}
+
+
+def get_custom_command(guild_id, command_name):
+    """Returns the response text for one custom command."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(
+        '''SELECT response_text
+           FROM custom_commands
+           WHERE guild_id = ? AND command_name = ?''',
+        (guild_id, command_name)
+    )
+    row = c.fetchone()
+    conn.close()
+    return row['response_text'] if row else None
+
+
+def upsert_custom_command(guild_id, command_name, response_text):
+    """Creates or updates a custom command for a guild."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(
+        '''INSERT INTO custom_commands (guild_id, command_name, response_text)
+           VALUES (?, ?, ?)
+           ON CONFLICT(guild_id, command_name) DO UPDATE SET
+           response_text = excluded.response_text''',
+        (guild_id, command_name, response_text)
+    )
+    conn.commit()
+    conn.close()
+    write_snapshot()
+
+
+def delete_custom_command(guild_id, command_name):
+    """Deletes a custom command and returns whether a row was removed."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute(
+        'DELETE FROM custom_commands WHERE guild_id = ? AND command_name = ?',
+        (guild_id, command_name)
+    )
+    deleted = c.rowcount > 0
+    conn.commit()
+    conn.close()
+    if deleted:
+        write_snapshot()
+    return deleted
