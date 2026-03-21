@@ -316,6 +316,11 @@ async def ping(ctx):
     await ctx.send(f"Pong! 🏓 Latency: {round(bot.latency * 1000)}ms")
 
 
+def is_reserved_command_name(command_name: str) -> bool:
+    """Return True when a custom command name would collide with a built-in command or alias."""
+    return bot.get_command(command_name) is not None
+
+
 @bot.command(name='addcommand', aliases=['setcommand', 'customcommand'])
 @commands.has_permissions(administrator=True)
 async def add_custom_command(ctx, command_name: str = None, *, response_text: str = None):
@@ -332,9 +337,8 @@ async def add_custom_command(ctx, command_name: str = None, *, response_text: st
         await ctx.send("❌ Command names must be a single word, like `rules` or `faq`.")
         return
 
-    existing_command = bot.get_command(normalized_name)
-    if existing_command and existing_command.name != 'addcommand':
-        await ctx.send(f"❌ `!{normalized_name}` is already used by a built-in bot command.")
+    if is_reserved_command_name(normalized_name):
+        await ctx.send(f"❌ `!{normalized_name}` is already used by a built-in bot command or alias.")
         return
 
     database.upsert_custom_command(ctx.guild.id, normalized_name, response_text.strip())
