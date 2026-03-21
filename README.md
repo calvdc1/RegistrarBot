@@ -39,12 +39,21 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 - **Smart Cleanup**: In sticky channels, plain-text messages are auto-deleted, but messages with images/photos are kept.
 - **Remove Sticky**: Use `!removestick` to disable the sticky for a channel.
 
+### 💬 Custom Commands
+- **Server-Specific Responses**: Admins can create reusable text commands like `!rules` or `!faq`.
+- **Persistent Storage**: Custom commands are stored in SQLite and survive bot restarts.
+- **Easy Management**:
+  - `!addcommand <name> <response>` creates or updates a command.
+  - `!removecommand <name>` deletes a command.
+  - `!listcommands` shows every saved custom command for the server.
+
 ### 📝 Auto-Nickname
 - **Standardized Format**: automatically adds a suffix (e.g., `[𝙼𝚂𝚄𝚊𝚗]`) to nicknames.
 - **Enforcement**: Options to enforce naming conventions on join or role changes.
 
 ### 💾 Persistence
 - **Database Storage**: SQLite database ensures data survives restarts.
+- **Snapshot Backups**: The bot also writes `attendance_snapshot.json` beside the database so attendance history and custom commands can be restored if a fresh SQLite file is created on the same persistent disk.
 - **Railway + Cloudflare Ready**: Includes Railway health checks, Cloudflare-friendly HTTP endpoints, and first-class Cloudflare Containers deployment files.
 - **Render.com Ready**: Configured for easy deployment with persistent disk support.
 
@@ -62,10 +71,17 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
    ```
    DISCORD_TOKEN=your_token_here
    ```
+   Optional persistence overrides:
+   ```
+   DB_FILE=/data/attendance.db
+   DB_SNAPSHOT_FILE=/data/attendance_snapshot.json
+   ```
 4. Run the bot:
    ```bash
    python bot.py
    ```
+
+If `DB_FILE` is not set, the bot now automatically prefers `/data/attendance.db` when a `/data` volume exists, and otherwise falls back to `data/attendance.db`.
 
 ### 2. Configuration (In Discord)
 Run these commands in your server to set up the bot. **The bot will notify you when setup is complete!**
@@ -105,6 +121,7 @@ After setup, use:
 - `!attendance` to post or refresh the Daily Attendance Report.
 - `present`, `absent`, or the attendance buttons in the attendance channel to update the report. Once a user is marked present, absent, or excused for the session, they cannot switch to another status until an admin resets them.
 - `!leaderboard` to show the gold Attendance Leaderboard.
+- `!addcommand rules Be respectful and follow the server guide.` to create a reusable `!rules` command.
 
 ---
 
@@ -116,6 +133,7 @@ After setup, use:
 | `present` / `absent` | Mark yourself as present or absent (requires Permitted Role & Active Window). Once submitted, you cannot switch to another status until an admin resets you. |
 | `!nick <Name>` | Change your nickname (suffix added automatically). |
 | `!attendance` | View the current attendance status. |
+| `!listcommands` | Show all custom commands configured for the server. |
 
 ### Admin / Staff Commands
 | Command | Description |
@@ -129,6 +147,8 @@ After setup, use:
 | `!leaderboard` | Show the attendance leaderboard (Present / Absent / Excused). |
 | **Configuration** | |
 | `!settings` | Open interactive settings dashboard. |
+| `!addcommand <name> <response>` | Create or update a custom text command. |
+| `!removecommand <name>` | Delete a custom text command. |
 | `!settime <Start> - <End>` | Set daily attendance window (PH Time). |
 | `!assignchannel #channel` | Set channel for live reports. |
 | `!assignchannel remove` | Disable automatic attendance reporting. |
@@ -151,7 +171,8 @@ This bot now includes a production-friendly HTTP health server that works well o
 1.  Create a new Railway project and deploy this repository. Railway will detect Python automatically, and `railway.json` configures `python bot.py` plus a `/healthz` health check.
 2.  In Railway variables, set:
     - `DISCORD_TOKEN` = your Discord bot token
-    - `DB_FILE` = `/data/attendance.db` if you attach a Railway volume, or leave it unset to use the local filesystem
+    - `DB_FILE` = `/data/attendance.db` if you attach a Railway volume, or leave it unset and the bot will auto-select `/data/attendance.db` when that volume exists
+    - `DB_SNAPSHOT_FILE` = `/data/attendance_snapshot.json` if you want the JSON backup stored explicitly on the same volume
 3.  If you need persistent attendance data, attach a Railway Volume and mount it at `/data`.
 4.  (Optional) In Cloudflare DNS, point a custom domain or subdomain to your Railway hostname. The built-in `/`, `/healthz`, and `/readyz` endpoints return JSON and disable caching, which makes them safe for Cloudflare proxying and uptime checks.
 5.  If Cloudflare proxying causes issues during first setup, temporarily switch the DNS record to **DNS only** until SSL finishes provisioning, then re-enable proxying if desired.
@@ -183,7 +204,7 @@ This repository can now deploy directly to the [Cloudflare global network](https
    npx wrangler containers images list
    ```
 
-**Important persistence note:** Cloudflare Containers currently provide **ephemeral disk**, so the bundled SQLite database will reset whenever the container is replaced or restarted. For production attendance history on Cloudflare, move persistence to an external database or storage service before relying on long-term data retention.
+**Important persistence note:** Cloudflare Containers currently provide **ephemeral disk**, so the bundled SQLite database and JSON snapshot will reset whenever the container is replaced or restarted. For production attendance history on Cloudflare, move persistence to an external database or storage service before relying on long-term data retention.
 
 ### Render.com
 
@@ -198,7 +219,7 @@ This bot is configured for deployment on [Render](https://render.com).
     *   **Start Command**: `python bot.py`
 5.  Add your `DISCORD_TOKEN` in the **Environment Variables** section of your Render service. If you created the service from `render.yaml`, note that the placeholder secret is declared with `sync: false`, so you still need to provide the real token in Render.
 6.  Until `DISCORD_TOKEN` is set, the health-check web server can still respond, but the bot itself will not log in to Discord.
-7.  (Optional) Add a **Persistent Disk** mounted at `/data` if you want the database to survive redeploys.
+7.  Add a **Persistent Disk** mounted at `/data` so both `attendance.db` and `attendance_snapshot.json` survive restarts and redeploys.
 
 ### Vercel
 

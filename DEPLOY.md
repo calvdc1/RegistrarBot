@@ -3,7 +3,7 @@
 To keep your bot running 24/7, you need to host it on a cloud server.
 
 ## 🚨 IMPORTANT: Data Persistence 🚨
-This bot uses a local SQLite database (`attendance.db`). 
+This bot uses a local SQLite database (`attendance.db`) and now also writes a JSON snapshot backup (`attendance_snapshot.json`) beside it.
 - **On Render's Free Tier**, the filesystem is **ephemeral**. This means **all attendance data will be deleted** every time the bot restarts or redeploys.
 - **To save data permanently**, you must use a **Render Disk** (Paid Feature) or switch to an external database.
 
@@ -18,6 +18,7 @@ This method uses the included `render.yaml` file to set up a Persistent Disk aut
 6. Click **Apply**.
 7. **Environment Variables**: Enter your `DISCORD_TOKEN` in the dashboard if prompted, or add it manually in the **Environment** tab after creation. Render blueprint placeholders created with `sync: false` do **not** include a value automatically.
 8. If the token is missing, the service can stay online for health checks, but the bot will **not** connect to Discord until `DISCORD_TOKEN` is configured and the service is redeployed.
+9. The included `render.yaml` already mounts `/data` and points `DB_FILE` there, so both the SQLite database and JSON snapshot survive offline periods and redeploys.
 
 ## Method 2: Free Tier (No Persistence)
 If you only need the bot for testing and don't care about losing data on restart:
@@ -56,8 +57,9 @@ This repository now includes `railway.json`, which tells Railway to start the bo
 1. Create a new Railway project from this repository. The included `nixpacks.toml` tells Railway to install `requirements-runtime.txt` before starting the bot.
 2. Add `DISCORD_TOKEN` in Railway Variables.
 3. For persistent SQLite storage, attach a Railway Volume and set `DB_FILE=/data/attendance.db`.
-4. After the first deployment succeeds, optionally add a Cloudflare-managed custom domain that points to the Railway service.
-5. The built-in stdlib health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
+4. Optionally set `DB_SNAPSHOT_FILE=/data/attendance_snapshot.json` so the JSON backup lives on the same volume.
+5. After the first deployment succeeds, optionally add a Cloudflare-managed custom domain that points to the Railway service.
+6. The built-in stdlib health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
 
 > Note: Cloudflare is used here as the DNS/proxy layer in front of Railway. Cloudflare Workers/Pages are not suitable for running this always-on Discord bot process by themselves.
 
@@ -95,4 +97,4 @@ This repo now includes a direct Cloudflare deployment path for Cloudflare's glob
    ```
 
 ### Limitation
-Cloudflare Containers do **not** offer persistent disk yet. That means the included SQLite database is suitable only for testing on Cloudflare unless you swap persistence to an external database or object-storage-backed design.
+Cloudflare Containers do **not** offer persistent disk yet. That means the included SQLite database and JSON snapshot are suitable only for testing on Cloudflare unless you swap persistence to an external database or object-storage-backed design.

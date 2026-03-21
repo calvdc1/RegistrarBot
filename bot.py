@@ -295,10 +295,90 @@ def parse_time_input(time_str):
             
     return None
 
+
+def normalize_custom_command_name(command_name):
+    """Normalizes a custom command name so it can be stored and matched safely."""
+    if not command_name:
+        return None
+
+    normalized = command_name.strip().lower()
+    if normalized.startswith('!'):
+        normalized = normalized[1:]
+
+    if not normalized or ' ' in normalized:
+        return None
+
+    return normalized
+
 @bot.command(name='ping')
 async def ping(ctx):
     """Checks if the bot is alive."""
     await ctx.send(f"Pong! 🏓 Latency: {round(bot.latency * 1000)}ms")
+
+
+@bot.command(name='addcommand', aliases=['setcommand', 'customcommand'])
+@commands.has_permissions(administrator=True)
+async def add_custom_command(ctx, command_name: str = None, *, response_text: str = None):
+    """
+    Creates or updates a custom command for this server.
+    Usage: !addcommand rules Be respectful and follow the server rules.
+    """
+    if command_name is None or response_text is None:
+        await ctx.send("Usage: `!addcommand <command> <response>`")
+        return
+
+    normalized_name = normalize_custom_command_name(command_name)
+    if normalized_name is None:
+        await ctx.send("❌ Command names must be a single word, like `rules` or `faq`.")
+        return
+
+    existing_command = bot.get_command(normalized_name)
+    if existing_command and existing_command.name != 'addcommand':
+        await ctx.send(f"❌ `!{normalized_name}` is already used by a built-in bot command.")
+        return
+
+    database.upsert_custom_command(ctx.guild.id, normalized_name, response_text.strip())
+    await ctx.send(f"✅ Custom command saved. Members can now use `!{normalized_name}`.")
+
+
+@bot.command(name='removecommand', aliases=['deletecommand'])
+@commands.has_permissions(administrator=True)
+async def remove_custom_command(ctx, command_name: str = None):
+    """
+    Deletes a saved custom command.
+    Usage: !removecommand rules
+    """
+    if command_name is None:
+        await ctx.send("Usage: `!removecommand <command>`")
+        return
+
+    normalized_name = normalize_custom_command_name(command_name)
+    if normalized_name is None:
+        await ctx.send("❌ Please provide a valid one-word command name.")
+        return
+
+    if database.delete_custom_command(ctx.guild.id, normalized_name):
+        await ctx.send(f"🗑️ Removed custom command `!{normalized_name}`.")
+    else:
+        await ctx.send(f"❌ No custom command named `!{normalized_name}` was found.")
+
+
+@bot.command(name='listcommands', aliases=['customcommands'])
+async def list_custom_commands(ctx):
+    """Lists the custom commands configured for this server."""
+    commands_map = database.get_custom_commands(ctx.guild.id)
+    if not commands_map:
+        await ctx.send("No custom commands are configured yet.")
+        return
+
+    command_list = ', '.join(f"`!{name}`" for name in commands_map.keys())
+    embed = discord.Embed(
+        title="Custom Commands",
+        description=command_list,
+        color=discord.Color.blurple()
+    )
+    embed.set_footer(text=f"Total custom commands: {len(commands_map)}")
+    await ctx.send(embed=embed)
 
 async def check_and_notify_setup_completion(ctx):
     """
@@ -2268,7 +2348,19 @@ async def on_message(message):
     if message.content.startswith('!'):
         logger.info(f"Command-like message received from {message.author}: {message.content}")
 
+    ctx = await bot.get_context(message)
     await bot.process_commands(message)
+
+    if (
+        message.guild
+        and message.content.startswith('!')
+        and ctx.command is None
+    ):
+        command_name = normalize_custom_command_name(message.content.split()[0])
+        custom_response = database.get_custom_command(message.guild.id, command_name)
+        if custom_response:
+            await message.channel.send(custom_response)
+            return
 
     msg_content = message.content.strip().lower()
 
