@@ -310,10 +310,31 @@ def normalize_custom_command_name(command_name):
 
     return normalized
 
+
+def extract_prefixed_command_name(message_content):
+    """Return a normalized prefixed command name, or None for empty/invalid `!` input."""
+    if not message_content:
+        return None
+
+    stripped = message_content.strip()
+    if not stripped.startswith('!'):
+        return None
+
+    parts = stripped.split(maxsplit=1)
+    if not parts:
+        return None
+
+    return normalize_custom_command_name(parts[0])
+
 @bot.command(name='ping')
 async def ping(ctx):
     """Checks if the bot is alive."""
     await ctx.send(f"Pong! 🏓 Latency: {round(bot.latency * 1000)}ms")
+
+
+def is_reserved_command_name(command_name: str) -> bool:
+    """Return True when a custom command name would collide with a built-in command or alias."""
+    return bot.get_command(command_name) is not None
 
 
 @bot.command(name='addcommand', aliases=['setcommand', 'customcommand'])
@@ -332,9 +353,8 @@ async def add_custom_command(ctx, command_name: str = None, *, response_text: st
         await ctx.send("❌ Command names must be a single word, like `rules` or `faq`.")
         return
 
-    existing_command = bot.get_command(normalized_name)
-    if existing_command and existing_command.name != 'addcommand':
-        await ctx.send(f"❌ `!{normalized_name}` is already used by a built-in bot command.")
+    if is_reserved_command_name(normalized_name):
+        await ctx.send(f"❌ `!{normalized_name}` is already used by a built-in bot command or alias.")
         return
 
     database.upsert_custom_command(ctx.guild.id, normalized_name, response_text.strip())
@@ -2351,16 +2371,13 @@ async def on_message(message):
     ctx = await bot.get_context(message)
     await bot.process_commands(message)
 
-    if (
-        message.guild
-        and message.content.startswith('!')
-        and ctx.command is None
-    ):
-        command_name = normalize_custom_command_name(message.content.split()[0])
-        custom_response = database.get_custom_command(message.guild.id, command_name)
-        if custom_response:
-            await message.channel.send(custom_response)
-            return
+    if message.guild and ctx.command is None:
+        command_name = extract_prefixed_command_name(message.content)
+        if command_name:
+            custom_response = database.get_custom_command(message.guild.id, command_name)
+            if custom_response:
+                await message.channel.send(custom_response)
+                return
 
     msg_content = message.content.strip().lower()
 
