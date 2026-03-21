@@ -56,7 +56,7 @@ A comprehensive Discord bot for managing attendance, user nicknames, and role-ba
 1. Clone the repository.
 2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-runtime.txt
    ```
 3. Create a `.env` file with your bot token:
    ```
@@ -194,7 +194,7 @@ This bot is configured for deployment on [Render](https://render.com).
 3.  Connect your GitHub repository.
 4.  Render should automatically detect the `render.yaml` configuration.
     *   **Runtime**: Python 3
-    *   **Build Command**: `pip install -r requirements.txt`
+    *   **Build Command**: `pip install -r requirements-runtime.txt`
     *   **Start Command**: `python bot.py`
 5.  Add your `DISCORD_TOKEN` in the **Environment Variables** section of your Render service. If you created the service from `render.yaml`, note that the placeholder secret is declared with `sync: false`, so you still need to provide the real token in Render.
 6.  Until `DISCORD_TOKEN` is set, the health-check web server can still respond, but the bot itself will not log in to Discord.

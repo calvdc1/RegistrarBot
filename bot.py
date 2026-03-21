@@ -7,7 +7,7 @@ import time
 from typing import Union
 import discord
 from discord.ext import commands, tasks
-from dotenv import load_dotenv
+from env_utils import load_dotenv
 from keep_alive import keep_alive
 import database # Import database module
 
@@ -1099,8 +1099,26 @@ async def reset_specific_role(ctx, role: discord.Role):
             
     await ctx.send(f"✅ Reset complete! Removed {role.mention} from {count} users.")
 
+def get_current_ph_time():
+    """Returns the current Philippines time (UTC+8)."""
+    ph_tz = datetime.timezone(datetime.timedelta(hours=8))
+    return datetime.datetime.now(ph_tz)
+
+
+def is_weekend_in_ph(now_dt=None):
+    """Returns True when the current Philippines day is Saturday or Sunday."""
+    current_dt = now_dt or get_current_ph_time()
+    return current_dt.weekday() >= 5
+
+
 def is_in_attendance_window(guild_id):
     settings = load_settings(guild_id)
+    now_dt = get_current_ph_time()
+
+    if is_weekend_in_ph(now_dt):
+        current_day = now_dt.strftime("%A")
+        return False, f"Attendance is closed on weekends. Today is {current_day} in Philippines time, so attendance is only available from Monday to Friday."
+
     if settings.get('attendance_mode') != 'window':
         return True, None
     
@@ -1110,10 +1128,6 @@ def is_in_attendance_window(guild_id):
     try:
         t_start = datetime.datetime.strptime(start_str, "%H:%M").time()
         t_end = datetime.datetime.strptime(end_str, "%H:%M").time()
-        
-        # Use Philippines Time (UTC+8)
-        ph_tz = datetime.timezone(datetime.timedelta(hours=8))
-        now_dt = datetime.datetime.now(ph_tz)
         now = now_dt.time()
         
         in_window = False
@@ -1185,6 +1199,11 @@ async def mark_absent(ctx, member: discord.Member):
     Marks a user as absent.
     Usage: !absent @User
     """
+    allowed, msg = is_in_attendance_window(ctx.guild.id)
+    if not allowed:
+        await ctx.send(msg)
+        return
+
     await update_user_status(ctx, member, 'absent')
 
 @bot.command(name='excuse')
@@ -1216,9 +1235,7 @@ def create_attendance_embed(guild):
     data = load_attendance_data(guild.id)
     records = data.get('records', {})
     
-    # Philippines Time (UTC+8)
-    ph_tz = datetime.timezone(datetime.timedelta(hours=8))
-    now_ph = datetime.datetime.now(ph_tz)
+    now_ph = get_current_ph_time()
 
     embed = discord.Embed(title="Daily Attendance Report", color=discord.Color.gold())
     if guild.icon:
@@ -1244,10 +1261,15 @@ def create_attendance_embed(guild):
         except:
             pass
 
+    weekend_note = ""
+    if is_weekend_in_ph(now_ph):
+        weekend_note = "**Note:** Weekend attendance submissions are disabled.\n"
+
     embed.description = (
         f"**🗓️ Date:** `{now_ph.strftime('%B %d, %Y')}`\n"
         f"{time_info}\n"
         f"**Status:** {status_str}\n"
+        f"{weekend_note}"
     )
     
     # Helper to get name
@@ -1655,11 +1677,13 @@ async def check_attendance_expiry():
                 last_processed = settings.get('last_processed_date')
             
             try:
-                # Use Philippines Time (UTC+8)
-                ph_tz = datetime.timezone(datetime.timedelta(hours=8))
-                now = datetime.datetime.now(ph_tz)
+                now = get_current_ph_time()
                 today_str = now.strftime("%Y-%m-%d")
-                
+
+                if mode != 'window':
+                    continue
+
+                ph_tz = now.tzinfo
                 t_start = datetime.datetime.strptime(start_str, "%H:%M").time()
                 t_end = datetime.datetime.strptime(end_str, "%H:%M").time()
                 
@@ -1667,6 +1691,10 @@ async def check_attendance_expiry():
                 dt_start = datetime.datetime.combine(now.date(), t_start).replace(tzinfo=ph_tz)
                 dt_end = datetime.datetime.combine(now.date(), t_end).replace(tzinfo=ph_tz)
                 
+                if is_weekend_in_ph(now):
+                    logger.debug(f"Skipping attendance automation for {guild.name} because it is a weekend in Philippines time.")
+                    continue
+
                 # --- START OF WINDOW LOGIC ---
                 # Automatically post/refresh report when window opens
                 last_opened = settings.get('last_opened_date')

@@ -2,7 +2,7 @@ services:
   - type: web
     name: registrar-bot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements-runtime.txt
     startCommand: python bot.py
     disk:
       name: bot_data
@@ -10,7 +10,7 @@ services:
       sizeGB: 1
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.12.12
       - key: DB_FILE
         value: /data/attendance.db
       - key: DISCORD_TOKEN
