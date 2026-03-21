@@ -1,0 +1,5 @@
+[phases.install]
+cmds = ["pip install -r requirements-runtime.txt"]
+
+[start]
+cmd = "python bot.py"

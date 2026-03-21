@@ -26,11 +26,11 @@ If you only need the bot for testing and don't care about losing data on restart
 2. Connect your GitHub repo.
 3. **Settings**:
    - **Runtime**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
+   - **Build Command**: `pip install -r requirements-runtime.txt`
    - **Start Command**: `python bot.py`
 4. **Environment Variables**:
    - `DISCORD_TOKEN`: Your bot token.
-   - `PYTHON_VERSION`: `3.10.12`
+   - `PYTHON_VERSION`: `3.12.12`
 
 ## Prevent "Sleeping" (Free Tier Only)
 Free servers sleep after 15 minutes. Use [UptimeRobot](https://uptimerobot.com/) to ping your Render URL every 5 minutes.
@@ -53,11 +53,11 @@ If it doesn't deploy automatically:
 
 This repository now includes `railway.json`, which tells Railway to start the bot with `python bot.py` and use `/healthz` for health checks. The HTTP server also exposes `/readyz`, so you can place the Railway app behind Cloudflare and still have a simple endpoint for checks.
 
-1. Create a new Railway project from this repository.
+1. Create a new Railway project from this repository. The included `nixpacks.toml` tells Railway to install `requirements-runtime.txt` before starting the bot.
 2. Add `DISCORD_TOKEN` in Railway Variables.
 3. For persistent SQLite storage, attach a Railway Volume and set `DB_FILE=/data/attendance.db`.
 4. After the first deployment succeeds, optionally add a Cloudflare-managed custom domain that points to the Railway service.
-5. The Flask/Waitress health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
+5. The built-in stdlib health server listens on `PORT`, so Railway and Cloudflare can both reach the app without extra changes.
 
 > Note: Cloudflare is used here as the DNS/proxy layer in front of Railway. Cloudflare Workers/Pages are not suitable for running this always-on Discord bot process by themselves.
 
