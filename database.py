@@ -38,11 +38,22 @@ SNAPSHOT_FILE = os.getenv("DB_SNAPSHOT_FILE", str(Path(DB_FILE).with_name("atten
 logger = logging.getLogger(__name__)
 
 
+def ensure_parent_directory(file_path):
+    """Creates the parent directory for a file path when needed."""
+    path = Path(file_path)
+    parent = path.parent
+
+    if str(parent) in ("", "."):
+        return
+
+    parent.mkdir(parents=True, exist_ok=True)
+
+
 def write_snapshot():
     """Writes a JSON backup snapshot beside the SQLite database."""
     try:
         snapshot_path = Path(SNAPSHOT_FILE)
-        snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+        ensure_parent_directory(snapshot_path)
         payload = export_all_data()
         snapshot_path.write_text(
             json.dumps(payload, indent=2, sort_keys=True),
@@ -145,6 +156,7 @@ def restore_snapshot_if_needed(conn):
 
 def get_connection():
     """Establishes a connection to the SQLite database."""
+    ensure_parent_directory(DB_FILE)
     conn = sqlite3.connect(DB_FILE, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
