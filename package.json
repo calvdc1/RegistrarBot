@@ -5,7 +5,7 @@
   "scripts": {
     "cf:deploy": "wrangler deploy",
     "cf:dev": "wrangler dev",
-    "cf:check": "wrangler deploy --dry-run"
+    "cf:check": "node scripts/cf-check.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.43.0"
